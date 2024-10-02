@@ -6,10 +6,12 @@ import com.example.ecommerce.domain.exceptions.ProductNotFoundException;
 import com.example.ecommerce.domain.models.Product;
 import com.example.ecommerce.repositories.IProductRepository;
 import com.example.ecommerce.services.IProductServices;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ProductServiceImpl implements IProductServices {
 
     private final IProductRepository repository;
