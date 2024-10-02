@@ -17,7 +17,8 @@ public interface IProductServices {
 
     String deleteProduct(Long id);
 
-    List<ProductDto> searchProducts(String name, String category, Double minPrice, Double maxPrice);
+    List<ProductDto> findProductsByName(String name);
 
-    void updateProductStock(Long id, int newStock);
+    List<ProductDto> findProductsByPrinceRange(Double minPrice, Double maxPrice);
+
 }

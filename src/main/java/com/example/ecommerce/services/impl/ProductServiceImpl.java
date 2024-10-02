@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements IProductServices {
@@ -75,12 +76,18 @@ public class ProductServiceImpl implements IProductServices {
     }
 
     @Override
-    public List<ProductDto> searchProducts(String name, String category, Double minPrice, Double maxPrice) {
-        return List.of();
+    public List<ProductDto> findProductsByName(String name) {
+        List<Product> productList = repository.findByNameContainingIgnoreCase(name);
+        return productList.stream()
+                .map(ProductMapper::productToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void updateProductStock(Long id, int newStock) {
-
+    public List<ProductDto> findProductsByPrinceRange(Double minPrice, Double maxPrice) {
+        List<Product> products = repository.findByPriceBetween(minPrice,maxPrice);
+        return products.stream()
+                .map(ProductMapper::productToDto)
+                .collect(Collectors.toList());
     }
 }

@@ -43,12 +43,12 @@ public class ProductSQLRepository implements IProductRepository {
 
     @Override
     public List<Product> findByNameContainingIgnoreCase(String name) {
-        return List.of();
+        return repository.findByNameContainingIgnoreCase(name);
     }
 
     @Override
     public List<Product> findByPriceBetween(Double minPrice, Double maxPrice) {
-        return List.of();
+        return repository.findByPriceBetween(minPrice,maxPrice);
     }
 
     @Override
