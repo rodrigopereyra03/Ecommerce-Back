@@ -2,9 +2,10 @@ package com.example.ecommerce.api.dto;
 
 import com.example.ecommerce.domain.models.Address;
 import com.example.ecommerce.domain.models.Order;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -15,7 +16,8 @@ public class UserDto {
     private String lastName;
     private String email;
     private String password;
-    private LocalDate dateCreated;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime dateCreated;
     private int documentNumber;
     private int phone;
     private String rol;
