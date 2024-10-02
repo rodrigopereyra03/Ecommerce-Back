@@ -14,7 +14,7 @@ public class OrderDto {
     private Long id;
     private int amount;
     private Address address;
-    private List<Product> products;
+    private List<ProductDto> products;
     private String status;
     private LocalDate dateCreated;
     private User user;
