@@ -1,5 +1,6 @@
 package com.example.ecommerce.repositories;
 
+import com.example.ecommerce.domain.Enums.OrderStatus;
 import com.example.ecommerce.domain.models.Order;
 
 import java.time.LocalDate;
@@ -17,7 +18,7 @@ public interface IOrderRepository {
 
     boolean existsById(Long id);
 
-    List<Order> findByStatus(String status);
+    List<Order> findByStatus(OrderStatus status);
 
     List<Order> findByDateCreatedBetween(LocalDate startDate, LocalDate endDate);
 }

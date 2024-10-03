@@ -1,6 +1,8 @@
 package com.example.ecommerce.api.controllers;
 
 import com.example.ecommerce.api.dto.OrderDto;
+import com.example.ecommerce.domain.Enums.OrderStatus;
+import com.example.ecommerce.domain.models.Order;
 import com.example.ecommerce.services.IOrderServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,20 +37,20 @@ public class OrderController {
     }
 
     @DeleteMapping(value = "/orders/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        orderService.deleteOrder(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping(value = "/orders/status")
-    public ResponseEntity<List<OrderDto>> getOrdersByStatus(@RequestParam String status) {
-        List<OrderDto> orders = orderService.getOrdersByStatus(status);
-        return ResponseEntity.ok(orders);
+    public ResponseEntity<String> deleteOrder(@PathVariable Long id) {
+        String result = orderService.deleteOrder(id);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping(value = "/orders/date-range")
     public ResponseEntity<List<OrderDto>> getOrdersByDateRange(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         List<OrderDto> orders = orderService.getOrdersByDateRange(startDate, endDate);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping(value = "/orders/status")
+    public ResponseEntity<List<OrderDto>> getOrdersByStatus(@RequestParam OrderStatus status) {
+        List<OrderDto> orders = orderService.getOrdersByStatus(status);
         return ResponseEntity.ok(orders);
     }
 }
