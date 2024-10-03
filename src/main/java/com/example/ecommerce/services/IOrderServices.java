@@ -1,6 +1,7 @@
 package com.example.ecommerce.services;
 
 import com.example.ecommerce.api.dto.OrderDto;
+import com.example.ecommerce.domain.Enums.OrderStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,7 +17,7 @@ public interface IOrderServices {
 
     String deleteOrder(Long id);
 
-    List<OrderDto> getOrdersByStatus(String status);
+    List<OrderDto> getOrdersByStatus(OrderStatus status);
 
     List<OrderDto> getOrdersByDateRange(LocalDate startDate, LocalDate endDate);
 }

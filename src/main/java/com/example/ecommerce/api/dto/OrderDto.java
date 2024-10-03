@@ -1,5 +1,6 @@
 package com.example.ecommerce.api.dto;
 
+import com.example.ecommerce.domain.Enums.OrderStatus;
 import com.example.ecommerce.domain.models.Address;
 import com.example.ecommerce.domain.models.Product;
 import com.example.ecommerce.domain.models.User;
@@ -15,7 +16,7 @@ public class OrderDto {
     private int amount;
     private Address address;
     private List<ProductDto> products;
-    private String status;
+    private OrderStatus status;
     private LocalDate dateCreated;
     private User user;
 }

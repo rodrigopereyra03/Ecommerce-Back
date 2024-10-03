@@ -2,6 +2,7 @@ package com.example.ecommerce.services.impl;
 
 import com.example.ecommerce.api.dto.OrderDto;
 import com.example.ecommerce.api.mappers.OrderMapper;
+import com.example.ecommerce.domain.Enums.OrderStatus;
 import com.example.ecommerce.domain.models.Order;
 import com.example.ecommerce.repositories.IOrderRepository;
 import com.example.ecommerce.services.IOrderServices;
@@ -30,13 +31,32 @@ public class OrderServiceImpl implements IOrderServices {
     public List<OrderDto> getAllOrders() {
         List<Order> orderList = iOrderRepository.findAll();
         return orderList.stream()
-                .map(OrderMapper::toOrderDTO)
+                .map(order -> {
+                    OrderDto orderDto = OrderMapper.toOrderDTO(order);
+
+                    // Calculo el total de amount sumando los productos
+                    int totalAmount = order.getProducts().stream()
+                            .mapToInt(product -> product.getQuantity() * product.getPrice().intValue())
+                            .sum();
+
+                    orderDto.setAmount(totalAmount);
+                    return orderDto;
+                })
                 .collect(Collectors.toList());
     }
 
     @Override
     public OrderDto getOrderById(Long id) {
-        return OrderMapper.toOrderDTO(iOrderRepository.findById(id));
+        Order order = iOrderRepository.findById(id);
+        OrderDto orderDto = OrderMapper.toOrderDTO(order);
+
+        // Calculo el total de amount sumando los productos
+        int totalAmount = order.getProducts().stream()
+                .mapToInt(product -> product.getQuantity() * product.getPrice().intValue())
+                .sum();
+
+        orderDto.setAmount(totalAmount);
+        return orderDto;
     }
 
     @Override
@@ -56,9 +76,9 @@ public class OrderServiceImpl implements IOrderServices {
     }
 
     @Override
-    public List<OrderDto> getOrdersByStatus(String status) {
-        List<Order> orders = iOrderRepository.findByStatus(status);
-        return orders.stream()
+    public List<OrderDto> getOrdersByStatus(OrderStatus status) {
+        return iOrderRepository.findByStatus(status)
+                .stream()
                 .map(OrderMapper::toOrderDTO)
                 .collect(Collectors.toList());
     }

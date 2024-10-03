@@ -1,5 +1,6 @@
 package com.example.ecommerce.repositories.sql;
 
+import com.example.ecommerce.domain.Enums.OrderStatus;
 import com.example.ecommerce.domain.exceptions.OrderNotFoundException;
 import com.example.ecommerce.domain.models.Order;
 import com.example.ecommerce.repositories.IOrderRepository;
@@ -48,9 +49,10 @@ public class OrderSQLRepository implements IOrderRepository {
     }
 
     @Override
-    public List<Order> findByStatus(String status) {
+    public List<Order> findByStatus(OrderStatus status) {
         return iOrderSQLRepository.findByStatus(status);
     }
+
 
     @Override
     public List<Order> findByDateCreatedBetween(LocalDate startDate, LocalDate endDate) {
