@@ -3,7 +3,7 @@ INSERT INTO users (first_name, last_name, email, password, date_created, documen
 VALUES ('John', 'Doe', 'john.doe@example.com', 'password123', '2023-09-01', 12345678, 5551234, 'ADMIN');
 
 INSERT INTO users (first_name, last_name, email, password, date_created, document_number, phone, rol)
-VALUES ('Jane', 'Smith', 'jane.smith@example.com', 'password123', '2023-09-05', 87654321, 5555678, 'USER');
+VALUES ('Jane', 'Smith', 'jane.smith@example.com', 'password123', '2023-09-05', 87654321, 5555678, 'CUSTOMER');
 
 INSERT INTO address (street, number, zip_code, city, state, user_id)
 VALUES ('123 Main St', 100, 12345, 'Springfield', 'IL', 1);

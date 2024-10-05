@@ -1,5 +1,6 @@
 package com.example.ecommerce.api.dto;
 
+import com.example.ecommerce.domain.Enums.UserRol;
 import com.example.ecommerce.domain.models.Address;
 import com.example.ecommerce.domain.models.Order;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -20,7 +21,7 @@ public class UserDto {
     private LocalDateTime dateCreated;
     private int documentNumber;
     private int phone;
-    private String rol;
+    private UserRol rol;
     private List<Order> orders;
     private List<Address> addresses;
 }
