@@ -1,13 +1,12 @@
-package com.example.ecommerce.services;
+package com.example.ecommerce.services.impl;
 
 import com.example.ecommerce.domain.models.Order;
 import com.example.ecommerce.domain.models.User;
+import com.example.ecommerce.services.IEmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 
 @Service
-public class EmailServiceImpl implements IEmailService{
+public class EmailServiceImpl implements IEmailService {
 
     @Autowired
     private JavaMailSender mailSender;
