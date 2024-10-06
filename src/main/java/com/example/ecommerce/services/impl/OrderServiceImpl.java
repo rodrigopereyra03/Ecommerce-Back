@@ -11,7 +11,9 @@ import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.IOrderRepository;
 import com.example.ecommerce.repositories.IProductRepository;
 import com.example.ecommerce.repositories.IUserRepository;
+import com.example.ecommerce.services.IEmailService;
 import com.example.ecommerce.services.IOrderServices;
+import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -26,15 +28,17 @@ public class OrderServiceImpl implements IOrderServices {
     private final IOrderRepository iOrderRepository;
     private final IUserRepository iUserRepository;
     private final IProductRepository iProductRepository;
+    private final IEmailService iEmailService;
 
-    public OrderServiceImpl(IOrderRepository iOrderRepository, IUserRepository iUserRepository, IProductRepository iProductRepository) {
+    public OrderServiceImpl(IOrderRepository iOrderRepository, IUserRepository iUserRepository, IProductRepository iProductRepository, IEmailService iEmailService) {
         this.iOrderRepository = iOrderRepository;
         this.iUserRepository = iUserRepository;
         this.iProductRepository = iProductRepository;
+        this.iEmailService = iEmailService;
     }
 
     @Override
-    public OrderDto createOrder(OrderDto orderDto,String userEmail) {
+    public OrderDto createOrder(OrderDto orderDto,String userEmail) throws MessagingException {
         Order order = OrderMapper.toOrder(orderDto);
 
         // Carga el usuario desde la base de datos
@@ -69,6 +73,7 @@ public class OrderServiceImpl implements IOrderServices {
 
         // Guarda la orden
         Order savedOrder = iOrderRepository.save(order);
+        iEmailService.sendOrderConfirmationEmail(user, savedOrder);
         return OrderMapper.toOrderDTO(savedOrder);
     }
 

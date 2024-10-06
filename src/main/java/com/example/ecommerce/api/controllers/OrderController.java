@@ -4,6 +4,7 @@ import com.example.ecommerce.api.dto.OrderDto;
 import com.example.ecommerce.domain.Enums.OrderStatus;
 import com.example.ecommerce.domain.models.Order;
 import com.example.ecommerce.services.IOrderServices;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class OrderController {
     private IOrderServices orderService;
 
     @PostMapping(value = "/orders")
-    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto, Authentication authentication) {
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto, Authentication authentication) throws MessagingException {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         OrderDto createdOrder = orderService.createOrder(orderDto, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
