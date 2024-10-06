@@ -3,28 +3,73 @@ package com.example.ecommerce.services.impl;
 import com.example.ecommerce.api.dto.OrderDto;
 import com.example.ecommerce.api.mappers.OrderMapper;
 import com.example.ecommerce.domain.Enums.OrderStatus;
+import com.example.ecommerce.domain.exceptions.OrderNotFoundException;
+import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.Order;
+import com.example.ecommerce.domain.models.Product;
+import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.IOrderRepository;
+import com.example.ecommerce.repositories.IProductRepository;
+import com.example.ecommerce.repositories.IUserRepository;
 import com.example.ecommerce.services.IOrderServices;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements IOrderServices {
 
     private final IOrderRepository iOrderRepository;
+    private final IUserRepository iUserRepository;
+    private final IProductRepository iProductRepository;
 
-    public OrderServiceImpl(IOrderRepository iOrderRepository) {
+    public OrderServiceImpl(IOrderRepository iOrderRepository, IUserRepository iUserRepository, IProductRepository iProductRepository) {
         this.iOrderRepository = iOrderRepository;
+        this.iUserRepository = iUserRepository;
+        this.iProductRepository = iProductRepository;
     }
 
     @Override
-    public OrderDto createOrder(OrderDto orderDto) {
+    public OrderDto createOrder(OrderDto orderDto,String userEmail) {
         Order order = OrderMapper.toOrder(orderDto);
-        return OrderMapper.toOrderDTO(iOrderRepository.save(order));
+
+        // Carga el usuario desde la base de datos
+        User user = iUserRepository.findFirstByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        // Verifica que el documentNumber coincida
+        if (user.getDocumentNumber() != orderDto.getDocumentNumber()) {
+            throw new UserNotFoundException("Document number does not match with the authenticated user");
+        }
+        order.setUser(user);
+
+        // Carga los productos desde la base de datos y configura las cantidades
+        List<Product> products = orderDto.getProducts().stream().map(orderProductDto -> {
+            Product product = iProductRepository.findById(orderProductDto.getId())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+            product.setQuantity(orderProductDto.getQuantity()); // Asumiendo que Product tiene un campo 'quantity'
+            return product;
+        }).collect(Collectors.toList());
+        order.setProducts(products);
+
+        // Calcular el total de la orden
+        double totalAmount = products.stream()
+                .mapToDouble(product -> product.getPrice() * product.getQuantity())
+                .sum();
+        order.setAmount(totalAmount);
+
+        // Asigna el estado a CREATED
+        order.setStatus(OrderStatus.CREATED);
+        // Configura la dirección
+        order.setAddress(orderDto.getAddress());
+
+        // Guarda la orden
+        Order savedOrder = iOrderRepository.save(order);
+        return OrderMapper.toOrderDTO(savedOrder);
     }
 
     @Override
@@ -47,7 +92,8 @@ public class OrderServiceImpl implements IOrderServices {
 
     @Override
     public OrderDto getOrderById(Long id) {
-        Order order = iOrderRepository.findById(id);
+        Order order = iOrderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
         OrderDto orderDto = OrderMapper.toOrderDTO(order);
 
         // Calculo el total de amount sumando los productos
@@ -89,5 +135,27 @@ public class OrderServiceImpl implements IOrderServices {
         return orders.stream()
                 .map(OrderMapper::toOrderDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderDto> getOrdersByUserEmail(String email) {
+        Optional<User> userOptional = iUserRepository.findFirstByEmail(email);
+        if (userOptional.isPresent()){
+            User user = userOptional.get();
+            List<Order> orders = iOrderRepository.findByUser(user);
+            return orders.stream().map(OrderMapper::toOrderDTO).collect(Collectors.toList());
+        }else{
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public OrderDto updateOrderStatus(Long id, OrderStatus status) {
+        Order order = iOrderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
+
+        order.setStatus(status);
+        Order savedOrder = iOrderRepository.save(order);
+        return OrderMapper.toOrderDTO(savedOrder);
     }
 }

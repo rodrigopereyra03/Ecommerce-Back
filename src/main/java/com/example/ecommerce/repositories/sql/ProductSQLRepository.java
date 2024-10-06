@@ -23,12 +23,8 @@ public class ProductSQLRepository implements IProductRepository {
     }
 
     @Override
-    public Product findById(Long id) {
-        Optional<Product> productOptional = repository.findById(id);
-        if(productOptional.isEmpty()){
-            throw new ProductNotFoundException("Product not found with id: "+id);
-        }
-        return productOptional.get();
+    public Optional<Product> findById(Long id) {
+        return repository.findById(id);
     }
 
     @Override

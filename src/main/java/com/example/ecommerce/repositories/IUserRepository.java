@@ -2,12 +2,13 @@ package com.example.ecommerce.repositories;
 
 import com.example.ecommerce.domain.models.User;
 import java.util.List;
+import java.util.Optional;
 
 public interface IUserRepository {
 
     User save(User user);
 
-    User findById(Long id);
+    Optional<User> findById(Long id);
 
     List<User> findAll();
 
@@ -17,4 +18,5 @@ public interface IUserRepository {
 
     boolean existsById(Long id);
 
+    Optional<User> findFirstByEmail(String email);
 }

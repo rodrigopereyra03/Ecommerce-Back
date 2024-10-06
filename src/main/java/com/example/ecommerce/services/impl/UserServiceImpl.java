@@ -36,12 +36,14 @@ public class UserServiceImpl implements IUserServices {
 
     @Override
     public UserDto getUserById(Long id) {
-        return UserMapper.userToDto(repository.findById(id));
+        User user = repository.findById(id)
+                .orElseThrow(()->new UserNotFoundException("User not found with id: " + id));
+        return UserMapper.userToDto(user);
     }
 
     @Override
     public UserDto updateUser(Long id, UserDto userDto) {
-        Optional<User> user = Optional.ofNullable(repository.findById(userDto.getId()));
+        Optional<User> user = repository.findById(id);
 
         if (user.isPresent()) {
             User entity = user.get();

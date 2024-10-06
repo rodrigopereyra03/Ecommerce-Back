@@ -13,4 +13,6 @@ public interface IUserSQLRepository extends JpaRepository<User, Long> {
     Optional<User> findFirstByEmail(String email);
 
     User findByRol(UserRol admin);
+
+
 }
