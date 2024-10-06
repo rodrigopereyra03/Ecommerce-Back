@@ -4,6 +4,7 @@ import com.example.ecommerce.api.dto.OrderDto;
 import com.example.ecommerce.domain.models.Order;
 import lombok.experimental.UtilityClass;
 
+import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -18,9 +19,9 @@ public class OrderMapper {
                 .map(ProductMapper::productToDto)
                 .collect(Collectors.toList()));
         orderDTO.setStatus(order.getStatus());
-        orderDTO.setDateCreated(order.getDateCreated());
-        orderDTO.setUser(order.getUser());
-
+        orderDTO.setDateCreated(LocalDate.now());
+       // orderDTO.setUser(order.getUser());
+        orderDTO.setDocumentNumber(order.getUser().getDocumentNumber());
         return orderDTO;
     }
 

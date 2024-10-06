@@ -8,8 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,13 +23,14 @@ public class OrderController {
     @Autowired
     private IOrderServices orderService;
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping(value = "/orders")
-    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
-        OrderDto createdOrder = orderService.createOrder(orderDto);
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        OrderDto createdOrder = orderService.createOrder(orderDto, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/orders")
     public ResponseEntity<List<OrderDto>> getAllOrders() {
         List<OrderDto> orders = orderService.getAllOrders();
@@ -58,5 +63,19 @@ public class OrderController {
     public ResponseEntity<List<OrderDto>> getOrdersByStatus(@RequestParam OrderStatus status) {
         List<OrderDto> orders = orderService.getOrdersByStatus(status);
         return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping(value = "/user/orders")
+    public ResponseEntity<List<OrderDto>> getUserOrders(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        List<OrderDto> userOrders = orderService.getOrdersByUserEmail(userDetails.getUsername());
+        return ResponseEntity.ok(userOrders);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping(value = "/orders/{id}/status")
+    public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus status) {
+        OrderDto updatedOrder = orderService.updateOrderStatus(id, status);
+        return ResponseEntity.ok(updatedOrder);
     }
 }

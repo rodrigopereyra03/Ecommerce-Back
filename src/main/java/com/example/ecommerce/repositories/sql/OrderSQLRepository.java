@@ -3,6 +3,7 @@ package com.example.ecommerce.repositories.sql;
 import com.example.ecommerce.domain.Enums.OrderStatus;
 import com.example.ecommerce.domain.exceptions.OrderNotFoundException;
 import com.example.ecommerce.domain.models.Order;
+import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.IOrderRepository;
 import org.springframework.stereotype.Repository;
 
@@ -25,12 +26,8 @@ public class OrderSQLRepository implements IOrderRepository {
     }
 
     @Override
-    public Order findById(Long id) {
-        Optional<Order> optionalOrder = iOrderSQLRepository.findById(id);
-        if(optionalOrder.isEmpty()){
-            throw new OrderNotFoundException("Order not found with id: "+id);
-        }
-        return optionalOrder.get();
+    public Optional<Order> findById(Long id) {
+        return iOrderSQLRepository.findById(id);
     }
 
     @Override
@@ -58,4 +55,11 @@ public class OrderSQLRepository implements IOrderRepository {
     public List<Order> findByDateCreatedBetween(LocalDate startDate, LocalDate endDate) {
         return iOrderSQLRepository.findByDateCreatedBetween(startDate,endDate);
     }
+
+    @Override
+    public List<Order> findByUser(User user) {
+        return iOrderSQLRepository.findByUser(user);
+    }
+
+
 }

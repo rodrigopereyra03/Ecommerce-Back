@@ -3,11 +3,12 @@ package com.example.ecommerce.repositories;
 import com.example.ecommerce.domain.models.Product;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IProductRepository {
     Product save(Product product);
 
-    Product findById(Long id);
+    Optional<Product> findById(Long id);
 
     List<Product> findAll();
 

@@ -3,6 +3,7 @@ package com.example.ecommerce.services.impl;
 import com.example.ecommerce.api.dto.ProductDto;
 import com.example.ecommerce.api.mappers.ProductMapper;
 import com.example.ecommerce.domain.exceptions.ProductNotFoundException;
+import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.Product;
 import com.example.ecommerce.repositories.IProductRepository;
 import com.example.ecommerce.services.IProductServices;
@@ -37,12 +38,14 @@ public class ProductServiceImpl implements IProductServices {
 
     @Override
     public ProductDto getProductById(Long id) {
-        return ProductMapper.productToDto(repository.findById(id));
+        Product product = repository.findById(id)
+                .orElseThrow(()-> new ProductNotFoundException("Product not found with id: "+ id));
+        return ProductMapper.productToDto(product);
     }
 
     @Override
     public ProductDto updateProduct(ProductDto productDto) {
-        Optional<Product> product = Optional.ofNullable(repository.findById(productDto.getId()));
+        Optional<Product> product = repository.findById(productDto.getId());
 
         if(product.isPresent()){
             Product entity = product.get();

@@ -2,15 +2,17 @@ package com.example.ecommerce.repositories;
 
 import com.example.ecommerce.domain.Enums.OrderStatus;
 import com.example.ecommerce.domain.models.Order;
+import com.example.ecommerce.domain.models.User;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface IOrderRepository {
 
     Order save(Order order);
 
-    Order findById(Long id);
+    Optional<Order> findById(Long id);
 
     List<Order> findAll();
 
@@ -21,4 +23,6 @@ public interface IOrderRepository {
     List<Order> findByStatus(OrderStatus status);
 
     List<Order> findByDateCreatedBetween(LocalDate startDate, LocalDate endDate);
+
+    List<Order> findByUser(User user);
 }

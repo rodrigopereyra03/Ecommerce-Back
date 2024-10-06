@@ -23,12 +23,8 @@ public class UserSQLRepository implements IUserRepository {
     }
 
     @Override
-    public User findById(Long id) {
-        Optional<User> userOptional = repository.findById(id);
-        if(userOptional.isEmpty()){
-            throw new UserNotFoundException("User not found with id: "+id);
-        }
-        return userOptional.get();
+    public Optional<User> findById(Long id) {
+        return repository.findById(id);
     }
 
     @Override
@@ -49,5 +45,10 @@ public class UserSQLRepository implements IUserRepository {
     @Override
     public boolean existsById(Long id) {
         return repository.existsById(id);
+    }
+
+    @Override
+    public Optional<User> findFirstByEmail(String email) {
+        return repository.findFirstByEmail(email);
     }
 }
