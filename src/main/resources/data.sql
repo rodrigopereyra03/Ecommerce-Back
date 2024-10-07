@@ -17,11 +17,17 @@ VALUES (190, 1, 'CREATED', '2023-10-01', 1);
 INSERT INTO orders (amount, address_id, status, date_created, user_id)
 VALUES (190, 1, 'CREATED', '2023-10-01', 1);
 
-INSERT INTO product (name, description, quantity, price, images, order_id)
-VALUES ('Product A', 'Description for product A', 2, 20.00, 'image1a.jpg,image2a.jpg', 1);
+INSERT INTO product (name, description, quantity, price, order_id)
+VALUES ('Product A', 'Description for product A', 2, 20.00, 1);
 
-INSERT INTO product (name, description, quantity, price, images, order_id)
-VALUES ('Product B', 'Description for product B', 5, 30.00, 'image1b.jpg,image2b.jpg', 1);
+INSERT INTO product (name, description, quantity, price, order_id)
+VALUES ('Product B', 'Description for product B', 5, 30.00, 1);
+
+INSERT INTO product_images (product_id, image)
+VALUES (1, 'C:/Users/Usuario/Documents/Rodrigo/GAS.PNG'),
+       (1, 'C:/Users/Usuario/Documents/Rodrigo/AIRE.JPG'),
+       (2, 'C:/Users/Usuario/Documents/Rodrigo/GAS2.PNG'),
+       (2, 'C:/Users/Usuario/Documents/Rodrigo/AIRE.JPG');
 
 
 

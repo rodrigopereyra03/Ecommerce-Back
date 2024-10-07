@@ -16,6 +16,9 @@ public class Product {
     private String description;
     private int quantity;
     private Double price;
+    @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image")
     private List<String> images;
 
     @ManyToOne(fetch = FetchType.LAZY)
