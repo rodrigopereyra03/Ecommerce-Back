@@ -16,6 +16,7 @@ public class Product {
     private String description;
     private int quantity;
     private Double price;
+    private String mainImage;
     @ElementCollection
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image")
