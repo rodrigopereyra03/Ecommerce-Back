@@ -58,6 +58,9 @@ public class ProductServiceImpl implements IProductServices {
             if(productDto.getImages()!=null){
                 entity.setImages(productDto.getImages());
             }
+            if (productDto.getMainImage() != null) {
+                entity.setMainImage(productDto.getMainImage());
+            }
             if(productDto.getPrice()>=0){
                 entity.setPrice(productDto.getPrice());
             }
