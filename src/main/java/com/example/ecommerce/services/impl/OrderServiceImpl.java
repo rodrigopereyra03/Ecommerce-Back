@@ -155,12 +155,14 @@ public class OrderServiceImpl implements IOrderServices {
     }
 
     @Override
-    public OrderDto updateOrderStatus(Long id, OrderStatus status) {
+    public OrderDto updateOrderStatus(Long id, OrderStatus status) throws MessagingException {
         Order order = iOrderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found"));
 
         order.setStatus(status);
         Order savedOrder = iOrderRepository.save(order);
+
+        iEmailService.sendOrderStatusUpdateEmail(order.getUser(), order);
         return OrderMapper.toOrderDTO(savedOrder);
     }
 }
