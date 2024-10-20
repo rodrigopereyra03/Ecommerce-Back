@@ -51,6 +51,24 @@ public class EmailServiceImpl implements IEmailService {
         }
     }
 
+    @Override
+    public void sendOrderStatusUpdateEmail(User user, Order order) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(user.getEmail());
+            helper.setSubject("Actualización de Estado de Orden");
+            helper.setText(buildStatusUpdateEmailContent(user, order), true);
+            FileSystemResource headerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/CASAS.PNG"));
+            helper.addInline("header", headerImage);
+            FileSystemResource footerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/FOOTER.PNG"));
+            helper.addInline("footer", footerImage);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
     private String buildEmailContent(User user, Order order) {
         StringBuilder content = new StringBuilder();
         content.append("<html><head>");
@@ -80,6 +98,34 @@ public class EmailServiceImpl implements IEmailService {
             content.append("<strong>").append(product.getName()).append("</strong>: ").append(product.getDescription()).append(" (Cantidad: ").append(product.getQuantity()).append(")</li>");
         }
         content.append("</ul>");
+        content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
+        content.append("</div>");
+        content.append("<div style='text-align:center;margin-top:20px;'>");
+        content.append("<img src='cid:footer' alt='Pie de Página' style='width:100%;height:auto;max-height:200px;'><br><br>");
+        content.append("</div>");
+        content.append("</div>");
+        content.append("</div>");
+        content.append("</body></html>");
+        return content.toString();
+    }
+
+
+    private String buildStatusUpdateEmailContent(User user, Order order) {
+        StringBuilder content = new StringBuilder();
+        content.append("<html><head>");
+        content.append("<link href='https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap' rel='stylesheet'>");
+        content.append("<style>");
+        content.append("body { font-family: 'Poppins'; font-weight: 600; }");
+        content.append("</style>");
+        content.append("</head><body style='font-family:\"Poppins\",font-weight: 600;'>");
+        content.append("<div style='background-color:#f7f7f7;padding:20px;'>");
+        content.append("<div style='max-width:600px;margin:auto;background-color:rgba(255,255,255,0.8);border:1px solid #ddd;border-radius:10px;padding:20px;'>");
+        content.append("<div style='text-align:center;'>");
+        content.append("<img src='cid:header' alt='Encabezado' style='width:200px;height:auto;'><br><br>");
+        content.append("</div>");
+        content.append("<div style='padding:15px;background-color:white;border:1px solid #ddd;border-radius:10px;text-align:center;'>");
+        content.append("<h2 style='color:#333;'>Hola ").append(user.getFirstName()).append(",</h2>");
+        content.append("<p>Hemos recibido el pago.").append(" Estamos preparando tu pedido.");
         content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
         content.append("</div>");
         content.append("<div style='text-align:center;margin-top:20px;'>");
