@@ -14,5 +14,7 @@ public interface IUserSQLRepository extends JpaRepository<User, Long> {
 
     User findByRol(UserRol admin);
 
+    Optional<User> findFirstByRol(UserRol rol);
+
 
 }

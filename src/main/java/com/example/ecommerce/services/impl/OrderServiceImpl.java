@@ -3,6 +3,7 @@ package com.example.ecommerce.services.impl;
 import com.example.ecommerce.api.dto.OrderDto;
 import com.example.ecommerce.api.mappers.OrderMapper;
 import com.example.ecommerce.domain.Enums.OrderStatus;
+import com.example.ecommerce.domain.Enums.UserRol;
 import com.example.ecommerce.domain.exceptions.OrderNotFoundException;
 import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.Order;
@@ -74,6 +75,10 @@ public class OrderServiceImpl implements IOrderServices {
         // Guarda la orden
         Order savedOrder = iOrderRepository.save(order);
         iEmailService.sendOrderConfirmationEmail(user, savedOrder);
+        // Enviar email de notificación al admin
+        User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
+                .orElseThrow(() -> new RuntimeException("Admin user not found"));
+        iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);
         return OrderMapper.toOrderDTO(savedOrder);
     }
 

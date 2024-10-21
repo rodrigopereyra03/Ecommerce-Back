@@ -1,5 +1,6 @@
 package com.example.ecommerce.repositories;
 
+import com.example.ecommerce.domain.Enums.UserRol;
 import com.example.ecommerce.domain.models.User;
 import java.util.List;
 import java.util.Optional;
@@ -19,4 +20,6 @@ public interface IUserRepository {
     boolean existsById(Long id);
 
     Optional<User> findFirstByEmail(String email);
+
+    Optional<User> findFirstByRole(UserRol admin);
 }
