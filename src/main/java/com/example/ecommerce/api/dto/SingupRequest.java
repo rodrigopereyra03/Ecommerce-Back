@@ -4,7 +4,6 @@ import com.example.ecommerce.domain.models.Address;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 public class SingupRequest {
@@ -14,7 +13,7 @@ public class SingupRequest {
     private String password;
     private int documentNumber;
     private int phone;
-    private List<Address> address;
+    private Address address;
     private LocalDateTime dateCreated;
 
 }
