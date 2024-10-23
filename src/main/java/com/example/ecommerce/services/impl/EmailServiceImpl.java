@@ -51,6 +51,43 @@ public class EmailServiceImpl implements IEmailService {
         }
     }
 
+    @Override
+    public void sendOrderStatusUpdateEmail(User user, Order order) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(user.getEmail());
+            helper.setSubject("Actualización de Estado de Orden");
+            helper.setText(buildStatusUpdateEmailContent(user, order), true);
+            FileSystemResource headerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/CASAS.PNG"));
+            helper.addInline("header", headerImage);
+            FileSystemResource footerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/FOOTER.PNG"));
+            helper.addInline("footer", footerImage);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendNewOrderNotificationToAdmin(User admin, Order order) throws MessagingException {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(admin.getEmail());
+            helper.setSubject("Nueva Orden Recibida");
+            helper.setText(buildNewOrderEmailContent(admin, order), true);
+            FileSystemResource headerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/CASAS.PNG"));
+            helper.addInline("header", headerImage);
+            FileSystemResource footerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/FOOTER.PNG"));
+            helper.addInline("footer", footerImage);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            throw new MessagingException("Failed to send email to admin", e);
+        }
+    }
+
     private String buildEmailContent(User user, Order order) {
         StringBuilder content = new StringBuilder();
         content.append("<html><head>");
@@ -84,6 +121,67 @@ public class EmailServiceImpl implements IEmailService {
         content.append("</div>");
         content.append("<div style='text-align:center;margin-top:20px;'>");
         content.append("<img src='cid:footer' alt='Pie de Página' style='width:100%;height:auto;max-height:200px;'><br><br>");
+        content.append("</div>");
+        content.append("</div>");
+        content.append("</div>");
+        content.append("</body></html>");
+        return content.toString();
+    }
+
+
+    private String buildStatusUpdateEmailContent(User user, Order order) {
+        StringBuilder content = new StringBuilder();
+        content.append("<html><head>");
+        content.append("<link href='https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap' rel='stylesheet'>");
+        content.append("<style>");
+        content.append("body { font-family: 'Poppins'; font-weight: 600; }");
+        content.append("</style>");
+        content.append("</head><body style='font-family:\"Poppins\",font-weight: 600;'>");
+        content.append("<div style='background-color:#f7f7f7;padding:20px;'>");
+        content.append("<div style='max-width:600px;margin:auto;background-color:rgba(255,255,255,0.8);border:1px solid #ddd;border-radius:10px;padding:20px;'>");
+        content.append("<div style='text-align:center;'>");
+        content.append("<img src='cid:header' alt='Encabezado' style='width:200px;height:auto;'><br><br>");
+        content.append("</div>");
+        content.append("<div style='padding:15px;background-color:white;border:1px solid #ddd;border-radius:10px;text-align:center;'>");
+        content.append("<h2 style='color:#333;'>Hola ").append(user.getFirstName()).append(",</h2>");
+        content.append("<p>Hemos recibido el pago.").append(" Estamos preparando tu pedido.");
+        content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
+        content.append("</div>");
+        content.append("<div style='text-align:center;margin-top:20px;'>");
+        content.append("<img src='cid:footer' alt='Pie de Página' style='width:100%;height:auto;max-height:200px;'><br><br>");
+        content.append("</div>");
+        content.append("</div>");
+        content.append("</div>");
+        content.append("</body></html>");
+        return content.toString();
+    }
+
+    private String buildNewOrderEmailContent(User admin, Order order) {
+        StringBuilder content = new StringBuilder();
+        content.append("<!DOCTYPE html>");
+        content.append("<html><head>");
+        content.append("<link href='https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap' rel='stylesheet'>");
+        content.append("<style>");
+        content.append("body { font-family: 'Poppins', sans-serif; font-weight: 600; }");
+        content.append(".content { background-color: #f7f7f7; padding: 20px; }");
+        content.append(".container { max-width: 600px; margin: auto; background-color: rgba(255,255,255,0.8); border: 1px solid #ddd; border-radius: 10px; padding: 20px; }");
+        content.append(".header, .footer { text-align: center; }");
+        content.append(".main { padding: 15px; background-color: white; border: 1px solid #ddd; border-radius: 10px; text-align: center; }");
+        content.append("</style>");
+        content.append("</head><body>");
+        content.append("<div class='content'>");
+        content.append("<div class='container'>");
+        content.append("<div class='header'>");
+        content.append("<img src='cid:header' alt='Encabezado' style='width: 200px; height: auto;'><br><br>");
+        content.append("</div>");
+        content.append("<div class='main'>");
+        content.append("<h2 style='color: #333;'>Hola Admin,</h2>");
+        content.append("<p>Se ha recibido la orden numero: <strong>").append(order.getId()).append("</strong>.</p>");
+        content.append("<p>Por favor, revisa los detalles en el sistema de gestión.</p>");
+        content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
+        content.append("</div>");
+        content.append("<div class='footer'>");
+        content.append("<img src='cid:footer' alt='Pie de Página' style='width: 100%; height: auto; max-height: 200px;'><br><br>");
         content.append("</div>");
         content.append("</div>");
         content.append("</div>");

@@ -24,5 +24,6 @@ public interface IOrderServices {
     List<OrderDto> getOrdersByDateRange(LocalDate startDate, LocalDate endDate);
 
     List<OrderDto> getOrdersByUserEmail(String email);
-    OrderDto updateOrderStatus(Long id, OrderStatus status);
+
+    OrderDto updateOrderStatus(Long id, OrderStatus status) throws MessagingException;
 }

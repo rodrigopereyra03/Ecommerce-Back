@@ -3,7 +3,7 @@ package com.example.ecommerce.services.impl;
 import com.example.ecommerce.api.dto.SingupRequest;
 import com.example.ecommerce.api.dto.UserDto;
 import com.example.ecommerce.domain.Enums.UserRol;
-import com.example.ecommerce.domain.models.Address;
+import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.sql.IUserSQLRepository;
 import com.example.ecommerce.services.IAuthServices;
@@ -12,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Collections;
 
 @Service
 public class AuthServiceImpl implements IAuthServices {
@@ -38,13 +38,17 @@ public class AuthServiceImpl implements IAuthServices {
 
     @Override
     public UserDto createUser(SingupRequest singupRequest) {
+        boolean emailExists = userSQLRepository.findFirstByEmail(singupRequest.getEmail()).isPresent();
+        if (emailExists) {
+            throw new UserNotFoundException("El email ya está registrado.");
+        }
         User user = new User();
         user.setFirstName(singupRequest.getName());
         user.setLastName(singupRequest.getLastName());
         user.setEmail(singupRequest.getEmail());
         user.setPassword(new BCryptPasswordEncoder().encode(singupRequest.getPassword()));
         user.setDocumentNumber(singupRequest.getDocumentNumber());
-        user.setAddresses(singupRequest.getAddress());
+        user.setAddresses(Collections.singletonList(singupRequest.getAddress()));
         user.setPhone(singupRequest.getPhone());
         user.setDateCreated(LocalDateTime.now());
         user.setRol(UserRol.CUSTOMER);

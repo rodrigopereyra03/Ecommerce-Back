@@ -1,5 +1,6 @@
 package com.example.ecommerce.repositories.sql;
 
+import com.example.ecommerce.domain.Enums.UserRol;
 import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.IUserRepository;
@@ -50,5 +51,10 @@ public class UserSQLRepository implements IUserRepository {
     @Override
     public Optional<User> findFirstByEmail(String email) {
         return repository.findFirstByEmail(email);
+    }
+
+    @Override
+    public Optional<User> findFirstByRole(UserRol admin) {
+        return repository.findFirstByRol(admin);
     }
 }

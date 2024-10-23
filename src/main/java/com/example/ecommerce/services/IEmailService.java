@@ -6,4 +6,7 @@ import jakarta.mail.MessagingException;
 
 public interface IEmailService {
     void sendOrderConfirmationEmail(User user, Order order) throws MessagingException;
+    void sendOrderStatusUpdateEmail(User user, Order order) throws MessagingException;
+    void sendNewOrderNotificationToAdmin(User admin, Order order) throws MessagingException;
+
 }
