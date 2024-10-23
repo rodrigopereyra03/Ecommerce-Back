@@ -18,7 +18,7 @@ INSERT INTO orders (amount, address_id, status, date_created, user_id)
 VALUES (190, 1, 'CREATED', '2023-10-01', 1);
 
 INSERT INTO product (name, description, quantity, price, order_id,main_image)
-VALUES ('Gas refrigerante Freon', 'Freon M049 PLUS \n Lata 750gr \n Lata 750gr', 2, 2000.00, 1,'../product-1.jpeg');
+VALUES ('Gas refrigerante Freon', 'Freon M049 PLUS \nLata 750gr \n Lata 750gr', 2, 2000.00, 1,'../product-1.jpeg');
 
 INSERT INTO product (name, description, quantity, price, order_id, main_image)
 VALUES ('Gas refrigerante M049', 'Freon M049 PLUS \nLata 750gr \nLata 750gr', 5, 3000.00, 1,'../product-2.jpeg');
