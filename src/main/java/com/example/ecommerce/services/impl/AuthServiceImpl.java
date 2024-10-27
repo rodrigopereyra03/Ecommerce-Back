@@ -8,20 +8,26 @@ import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.sql.IUserSQLRepository;
 import com.example.ecommerce.services.IAuthServices;
+import com.example.ecommerce.services.IEmailService;
 import jakarta.annotation.PostConstruct;
+import jakarta.mail.MessagingException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class AuthServiceImpl implements IAuthServices {
 
     private final IUserSQLRepository userSQLRepository;
+    private final IEmailService emailService;
 
-    public AuthServiceImpl(IUserSQLRepository userSQLRepository) {
+    public AuthServiceImpl(IUserSQLRepository userSQLRepository, IEmailService emailService) {
         this.userSQLRepository = userSQLRepository;
+        this.emailService = emailService;
     }
 
     @PostConstruct
@@ -66,5 +72,41 @@ public class AuthServiceImpl implements IAuthServices {
         dto.setRol(created.getRol());
         // UserMapper.userToDto(userSQLRepository.save(UserMapper.dtoToUser(singupRequest)));
         return dto;
+    }
+
+    @Override
+    public void resetPassword(String email) {
+        Optional<User> optionalUser = userSQLRepository.findFirstByEmail(email);
+        if (!optionalUser.isPresent()) {
+            throw new UserNotFoundException("User not found with email: " + email);
+        }
+
+        User user = optionalUser.get();
+        String newPassword = generateRandomPassword();
+
+        // Cifrado de la nueva contraseña
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode(newPassword)); // Cifrado
+        userSQLRepository.save(user); // Guarda el usuario actualizado
+
+        // Envío del correo electrónico con la nueva contraseña
+        try {
+            emailService.sendPasswordResetEmail(user, newPassword);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Error sending email: " + e.getMessage(), e);
+        }
+    }
+
+    private String generateRandomPassword() {
+        int length = 10; // Longitud de la nueva contraseña
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+        StringBuilder password = new StringBuilder();
+        Random random = new Random();
+
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(chars.length());
+            password.append(chars.charAt(index));
+        }
+        return password.toString();
     }
 }

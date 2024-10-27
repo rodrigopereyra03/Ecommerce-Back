@@ -1,10 +1,14 @@
 package com.example.ecommerce.api.controllers;
 
+import com.example.ecommerce.api.dto.ChangePasswordRequest;
 import com.example.ecommerce.api.dto.UserDto;
+import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.services.IUserServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,5 +48,18 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        try {
+            userService.changePassword(changePasswordRequest,userDetails.getUsername());
+            return new ResponseEntity<>("Password updated successfully.", HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }

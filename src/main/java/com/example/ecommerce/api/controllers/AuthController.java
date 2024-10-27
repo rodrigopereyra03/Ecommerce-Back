@@ -4,6 +4,7 @@ import com.example.ecommerce.api.dto.AuthenticationRequest;
 import com.example.ecommerce.api.dto.AuthenticationResponse;
 import com.example.ecommerce.api.dto.SingupRequest;
 import com.example.ecommerce.api.dto.UserDto;
+import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.sql.IUserSQLRepository;
 import com.example.ecommerce.services.IAuthServices;
@@ -17,10 +18,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -78,4 +77,17 @@ public class AuthController {
         }
         return authenticationResponse;
     }
+
+    @PostMapping(value = "/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String email) {
+        try {
+            iAuthServices.resetPassword(email);
+            return new ResponseEntity<>("Password reset successfully. Please check your email.", HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("Failed to send reset password email.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

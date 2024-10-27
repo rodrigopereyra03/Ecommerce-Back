@@ -1,11 +1,13 @@
 package com.example.ecommerce.services.impl;
 
+import com.example.ecommerce.api.dto.ChangePasswordRequest;
 import com.example.ecommerce.api.dto.UserDto;
 import com.example.ecommerce.api.mappers.UserMapper;
 import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.IUserRepository;
 import com.example.ecommerce.services.IUserServices;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +17,11 @@ import java.util.Optional;
 public class UserServiceImpl implements IUserServices {
 
     private final IUserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(IUserRepository repository) {
+    public UserServiceImpl(IUserRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -88,5 +92,39 @@ public class UserServiceImpl implements IUserServices {
     @Override
     public List<UserDto> searchUsers(String firstName, String lastName, String email) {
         return List.of();
+    }
+
+    @Override
+    public void changePassword(ChangePasswordRequest changePasswordRequest, String userEmail) {
+        Optional<User> optionalUser = repository.findFirstByEmail(userEmail);
+        if (optionalUser.isEmpty()) {
+            throw new UserNotFoundException("User not found with email: " + userEmail);
+        }
+
+        User user = optionalUser.get();
+
+        // Validar la contraseña actual
+        if (!passwordEncoder.matches(changePasswordRequest.getContrasenaActual(), user.getPassword())) {
+            throw new UserNotFoundException("Current password is incorrect.");
+        }
+
+        // Validar que las nuevas contraseñas coinciden
+        if (!changePasswordRequest.getContrasenaNueva().equals(changePasswordRequest.getConfirmaNuevaContrasena())) {
+            throw new RuntimeException("New passwords do not match.");
+        }
+
+        // Validar que la nueva contraseña tiene al menos 6 caracteres y al menos una mayúscula
+        if (!isValidPassword(changePasswordRequest.getContrasenaNueva())) {
+            throw new RuntimeException("New password must be at least 6 characters long and contain at least one uppercase letter.");
+        }
+
+        // Cifrar y guardar la nueva contraseña
+        String encryptedNewPassword = passwordEncoder.encode(changePasswordRequest.getContrasenaNueva());
+        user.setPassword(encryptedNewPassword);
+        repository.save(user); // Guarda el usuario actualizado
+    }
+
+    private boolean isValidPassword(String password) {
+        return password.length() >= 6 && password.matches(".*[A-Z].*");
     }
 }
