@@ -3,6 +3,7 @@ package com.example.ecommerce.services.impl;
 import com.example.ecommerce.api.dto.SingupRequest;
 import com.example.ecommerce.api.dto.UserDto;
 import com.example.ecommerce.domain.Enums.UserRol;
+import com.example.ecommerce.domain.exceptions.EmailAlreadyExistsException;
 import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.sql.IUserSQLRepository;
@@ -40,7 +41,7 @@ public class AuthServiceImpl implements IAuthServices {
     public UserDto createUser(SingupRequest singupRequest) {
         boolean emailExists = userSQLRepository.findFirstByEmail(singupRequest.getEmail()).isPresent();
         if (emailExists) {
-            throw new UserNotFoundException("El email ya está registrado.");
+            throw new EmailAlreadyExistsException("Error: El email ya se encuentra registrado.");
         }
         User user = new User();
         user.setFirstName(singupRequest.getName());

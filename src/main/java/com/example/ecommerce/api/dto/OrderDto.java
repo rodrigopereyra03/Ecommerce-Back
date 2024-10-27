@@ -21,5 +21,5 @@ public class OrderDto {
     private LocalDate dateCreated;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private User user;
-    private int documentNumber;
+
 }
