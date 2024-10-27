@@ -71,11 +71,11 @@ public class OrderServiceImpl implements IOrderServices {
 
         // Guarda la orden
         Order savedOrder = iOrderRepository.save(order);
-        iEmailService.sendOrderConfirmationEmail(user, savedOrder);
+       /* iEmailService.sendOrderConfirmationEmail(user, savedOrder);
         // Enviar email de notificación al admin
         User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
                 .orElseThrow(() -> new RuntimeException("Admin user not found"));
-        iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);
+        iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);*/
         return OrderMapper.toOrderDTO(savedOrder);
     }
 
