@@ -5,6 +5,7 @@ import com.example.ecommerce.api.mappers.OrderMapper;
 import com.example.ecommerce.domain.Enums.OrderStatus;
 import com.example.ecommerce.domain.Enums.UserRol;
 import com.example.ecommerce.domain.exceptions.OrderNotFoundException;
+import com.example.ecommerce.domain.exceptions.ProductNotFoundException;
 import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.Order;
 import com.example.ecommerce.domain.models.Product;
@@ -46,16 +47,12 @@ public class OrderServiceImpl implements IOrderServices {
         User user = iUserRepository.findFirstByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        // Verifica que el documentNumber coincida
-        if (user.getDocumentNumber() != orderDto.getDocumentNumber()) {
-            throw new UserNotFoundException("Document number does not match with the authenticated user");
-        }
         order.setUser(user);
 
         // Carga los productos desde la base de datos y configura las cantidades
         List<Product> products = orderDto.getProducts().stream().map(orderProductDto -> {
             Product product = iProductRepository.findById(orderProductDto.getId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+                    .orElseThrow(() -> new ProductNotFoundException("Product not found"));
             product.setQuantity(orderProductDto.getQuantity()); // Asumiendo que Product tiene un campo 'quantity'
             return product;
         }).collect(Collectors.toList());
