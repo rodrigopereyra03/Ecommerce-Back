@@ -21,7 +21,7 @@ public class OrderMapper {
         orderDTO.setStatus(order.getStatus());
         orderDTO.setDateCreated(LocalDate.now());
        // orderDTO.setUser(order.getUser());
-        orderDTO.setDocumentNumber(order.getUser().getDocumentNumber());
+   
         return orderDTO;
     }
 
