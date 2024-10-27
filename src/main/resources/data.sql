@@ -24,7 +24,7 @@ INSERT INTO product (name, description, quantity, price, order_id, main_image)
 VALUES ('Gas refrigerante M049', 'Freon M049 PLUS \nLata 750gr \nLata 750gr', 5, 3000.00, 1,'../product-2.jpeg');
 
 INSERT INTO product (name, description, quantity, price, order_id, main_image)
-VALUES ('Gas refrigerante M0490', 'Freon M049 PLUS \nLata 750gr', 5, 3000.00, 1,'../product-2.jpeg');
+VALUES ('Gas Anton natural', 'R600a \nLata 750gr', 5, 3000.00, 1,'../product-8.png');
 
 INSERT INTO product (name, description, quantity, price, order_id, main_image)
 VALUES ('Gas refrigerante M0496', 'Freon M049 PLUS \nLata 750gr ', 5, 3000.00, 1,'../product-2.jpeg');
@@ -53,10 +53,16 @@ VALUES ('Gas refrigerante M0495', 'Freon M049 PLUS \nLata 750gr \nLata 750gr', 5
 INSERT INTO product_images (product_id, image)
 VALUES (1, '../product-1.jpeg'),
        (1, '../product-1.jpeg'),
+       (1, '../product-2.jpeg'),
+              (1, '../product-2.jpeg'),
        (2, '../product-2.jpeg'),
        (2, '../product-2.jpeg'),
-       (3, '../product-1.jpeg'),
-       (3, '../product-1.jpeg'),
+              (2, '../product-1.jpeg'),
+              (2, '../product-1.jpeg'),
+       (3, '../product-8.png'),
+       (3, '../product-8.png'),
+              (3, '../product-2.jpeg'),
+              (3, '../product-2.jpeg'),
        (4, '../product-1.jpeg'),
        (4, '../product-1.jpeg');
 
