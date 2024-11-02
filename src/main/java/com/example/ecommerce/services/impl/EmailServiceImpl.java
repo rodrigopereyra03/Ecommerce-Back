@@ -8,11 +8,13 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.net.MalformedURLException;
 
 @Service
 public class EmailServiceImpl implements IEmailService {
@@ -29,25 +31,27 @@ public class EmailServiceImpl implements IEmailService {
             helper.setSubject("Confirmación de Pedido");
             helper.setText(buildEmailContent(user, order), true);
 
-            FileSystemResource headerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/CASAS.PNG"));
+            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
 
             // Añadir la imagen del pie de página
-            FileSystemResource footerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/FOOTER.PNG"));
+            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
 
             // Añadir imágenes de productos
-            for (Product product : order.getProducts()) {
+           /* for (Product product : order.getProducts()) {
                 if (product.getImages() != null && !product.getImages().isEmpty()) {
-                    String imagePath = product.getImages().get(0); // Usa la primera imagen
-                    FileSystemResource productImage = new FileSystemResource(new File(imagePath));
+                    String imageUrl = product.getImages().get(0); // Usa la primera imagen de la lista
+                    UrlResource productImage = new UrlResource(imageUrl);
                     helper.addInline("product-" + product.getId(), productImage);
                 }
-            }
+            }*/
 
                 mailSender.send(message);
         } catch (MessagingException e) {
             e.printStackTrace();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -59,13 +63,15 @@ public class EmailServiceImpl implements IEmailService {
             helper.setTo(user.getEmail());
             helper.setSubject("Actualización de Estado de Orden");
             helper.setText(buildStatusUpdateEmailContent(user, order), true);
-            FileSystemResource headerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/CASAS.PNG"));
+            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
-            FileSystemResource footerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/FOOTER.PNG"));
+            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
             mailSender.send(message);
         } catch (MessagingException e) {
             e.printStackTrace();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -77,14 +83,16 @@ public class EmailServiceImpl implements IEmailService {
             helper.setTo(admin.getEmail());
             helper.setSubject("Nueva Orden Recibida");
             helper.setText(buildNewOrderEmailContent(admin, order), true);
-            FileSystemResource headerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/CASAS.PNG"));
+            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
-            FileSystemResource footerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/FOOTER.PNG"));
+            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
             mailSender.send(message);
         } catch (MessagingException e) {
             e.printStackTrace();
             throw new MessagingException("Failed to send email to admin", e);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -98,15 +106,17 @@ public class EmailServiceImpl implements IEmailService {
             helper.setText(buildPasswordResetEmailContent(user, newPassword), true);
 
             // Añadir imágenes en línea, si es necesario
-            FileSystemResource headerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/CASAS.PNG"));
+            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
 
-            FileSystemResource footerImage = new FileSystemResource(new File("C:/Users/Usuario/Documents/Rodrigo/FOOTER.PNG"));
+            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
 
             mailSender.send(message);
         } catch (MessagingException e) {
             e.printStackTrace();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -134,10 +144,11 @@ public class EmailServiceImpl implements IEmailService {
         content.append("<p>Tu pedido esta siendo procesado.</p>");
         content.append("<p>Detalles de los productos:</p>");
         content.append("<ul>");
-        for (Product product : order.getProducts()) {
+       /* for (Product product : order.getProducts()) {
+            String imageUrl = product.getImages() != null && !product.getImages().isEmpty() ? product.getImages().get(0) : "default-image-url.jpg";
             content.append("<li><img src='cid:product-").append(product.getId()).append("' alt='").append(product.getName()).append("' style='width:200px;height:auto;'><br>");
             content.append("<strong>").append(product.getName()).append("</strong>: ").append(product.getDescription()).append(" (Cantidad: ").append(product.getQuantity()).append(")</li>");
-        }
+        }*/
         content.append("</ul>");
         content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
         content.append("</div>");
