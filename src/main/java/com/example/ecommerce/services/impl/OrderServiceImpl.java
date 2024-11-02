@@ -53,7 +53,8 @@ public class OrderServiceImpl implements IOrderServices {
         List<Product> products = orderDto.getProducts().stream().map(orderProductDto -> {
             Product product = iProductRepository.findById(orderProductDto.getId())
                     .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-            product.setQuantity(orderProductDto.getQuantity()); // Asumiendo que Product tiene un campo 'quantity'
+            product.setQuantity(orderProductDto.getQuantity());// Asumiendo que Product tiene un campo 'quantity'
+            product.setOrder(order);
             return product;
         }).collect(Collectors.toList());
         order.setProducts(products);

@@ -57,4 +57,5 @@ public class UserSQLRepository implements IUserRepository {
     public Optional<User> findFirstByRole(UserRol admin) {
         return repository.findFirstByRol(admin);
     }
+
 }

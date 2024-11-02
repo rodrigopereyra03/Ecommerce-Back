@@ -20,4 +20,6 @@ public interface IUserServices {
     List<UserDto> searchUsers(String firstName, String lastName, String email);
 
     void changePassword(ChangePasswordRequest changePasswordRequest,String userEmail);
+
+    UserDto getUserByUserEmail(String email);
 }
