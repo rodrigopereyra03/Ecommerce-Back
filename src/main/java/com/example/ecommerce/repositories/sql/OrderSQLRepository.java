@@ -61,5 +61,10 @@ public class OrderSQLRepository implements IOrderRepository {
         return iOrderSQLRepository.findByUser(user);
     }
 
+    @Override
+    public Optional<Order> findTopByUserEmailOrderByDateCreatedDesc(String userEmail) {
+        return iOrderSQLRepository.findTopByUserEmailOrderByDateCreatedDesc(userEmail);
+    }
+
 
 }

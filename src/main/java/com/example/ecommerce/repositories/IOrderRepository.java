@@ -25,4 +25,6 @@ public interface IOrderRepository {
     List<Order> findByDateCreatedBetween(LocalDate startDate, LocalDate endDate);
 
     List<Order> findByUser(User user);
+
+    Optional<Order> findTopByUserEmailOrderByDateCreatedDesc(String userEmail);
 }

@@ -21,7 +21,7 @@ public class OrderMapper {
         orderDTO.setStatus(order.getStatus());
         orderDTO.setDateCreated(LocalDate.now());
        // orderDTO.setUser(order.getUser());
-   
+        orderDTO.setComprobanteUrl(order.getComprobanteUrl());
         return orderDTO;
     }
 
@@ -36,7 +36,6 @@ public class OrderMapper {
         order.setStatus(orderDTO.getStatus());
         order.setDateCreated(orderDTO.getDateCreated());
         order.setUser(orderDTO.getUser());
-
         return order;
     }
 }

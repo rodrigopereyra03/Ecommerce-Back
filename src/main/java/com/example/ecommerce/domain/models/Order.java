@@ -36,4 +36,6 @@ public class Order {
     @JsonBackReference
     private User user;
 
+    private String comprobanteUrl;
+
 }

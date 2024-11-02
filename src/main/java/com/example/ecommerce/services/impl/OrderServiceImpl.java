@@ -167,4 +167,15 @@ public class OrderServiceImpl implements IOrderServices {
         iEmailService.sendOrderStatusUpdateEmail(order.getUser(), order);
         return OrderMapper.toOrderDTO(savedOrder);
     }
+
+    @Override
+    public OrderDto updateComprobanteUrl(String userEmail, String comprobanteUrl) {
+        Order order = iOrderRepository.findTopByUserEmailOrderByDateCreatedDesc(userEmail)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found for user: " + userEmail));
+
+        order.setComprobanteUrl(comprobanteUrl);
+        Order updatedOrder = iOrderRepository.save(order);
+
+        return OrderMapper.toOrderDTO(updatedOrder);
+    }
 }
