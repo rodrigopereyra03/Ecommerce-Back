@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IOrderSQLRepository extends JpaRepository<Order,Long> {
@@ -15,4 +16,5 @@ public interface IOrderSQLRepository extends JpaRepository<Order,Long> {
     List<Order> findByStatus(OrderStatus status);
     List<Order> findByDateCreatedBetween(LocalDate startDate, LocalDate endDate);
     List<Order> findByUser(User user);
+    Optional<Order> findTopByUserEmailOrderByDateCreatedDesc(String userEmail);
 }

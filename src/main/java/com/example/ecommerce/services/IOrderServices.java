@@ -26,4 +26,6 @@ public interface IOrderServices {
     List<OrderDto> getOrdersByUserEmail(String email);
 
     OrderDto updateOrderStatus(Long id, OrderStatus status) throws MessagingException;
+
+    OrderDto updateComprobanteUrl(String userEmail, String comprobanteUrl);
 }

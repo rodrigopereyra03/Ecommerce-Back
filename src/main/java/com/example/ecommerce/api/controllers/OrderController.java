@@ -79,4 +79,12 @@ public class OrderController {
         OrderDto updatedOrder = orderService.updateOrderStatus(id, status);
         return ResponseEntity.ok(updatedOrder);
     }
+
+    @PutMapping(value = "/orders/comprobante-url")
+    public ResponseEntity<OrderDto> updateComprobanteUrl(@RequestParam String comprobanteUrl, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        OrderDto updatedOrder = orderService.updateComprobanteUrl(userDetails.getUsername(),comprobanteUrl);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
 }
