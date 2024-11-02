@@ -39,13 +39,13 @@ public class EmailServiceImpl implements IEmailService {
             helper.addInline("footer", footerImage);
 
             // Añadir imágenes de productos
-           /* for (Product product : order.getProducts()) {
+            for (Product product : order.getProducts()) {
                 if (product.getImages() != null && !product.getImages().isEmpty()) {
                     String imageUrl = product.getImages().get(0); // Usa la primera imagen de la lista
                     UrlResource productImage = new UrlResource(imageUrl);
                     helper.addInline("product-" + product.getId(), productImage);
                 }
-            }*/
+            }
 
                 mailSender.send(message);
         } catch (MessagingException e) {
@@ -144,11 +144,11 @@ public class EmailServiceImpl implements IEmailService {
         content.append("<p>Tu pedido esta siendo procesado.</p>");
         content.append("<p>Detalles de los productos:</p>");
         content.append("<ul>");
-       /* for (Product product : order.getProducts()) {
+        for (Product product : order.getProducts()) {
             String imageUrl = product.getImages() != null && !product.getImages().isEmpty() ? product.getImages().get(0) : "default-image-url.jpg";
             content.append("<li><img src='cid:product-").append(product.getId()).append("' alt='").append(product.getName()).append("' style='width:200px;height:auto;'><br>");
             content.append("<strong>").append(product.getName()).append("</strong>: ").append(product.getDescription()).append(" (Cantidad: ").append(product.getQuantity()).append(")</li>");
-        }*/
+        }
         content.append("</ul>");
         content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
         content.append("</div>");
