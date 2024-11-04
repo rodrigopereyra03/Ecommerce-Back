@@ -41,11 +41,11 @@ class MPServiceImpl implements IMPServices {
 
         // Definir las URLs de redirección, incluyendo el ID de la orden
        // String callbackUrl = "http://localhost:3000/order/" + order.getId();
-        String callbackUrl = "https://www.youtube.com/watch?v=AbARVlSrvWg";
+       // String callbackUrl = "http://vps-4482586-x.dattaweb.com/orders";
         PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                .success(callbackUrl)
-                .failure(callbackUrl)
-                .pending(callbackUrl)
+                .success("http://vps-4482586-x.dattaweb.com/orders")
+                .failure("http://vps-4482586-x.dattaweb.com/cart")
+                .pending("http://vps-4482586-x.dattaweb.com/cart")
                 .build();
 
         // Crear un objeto de tipo PreferenceRequest con los items
