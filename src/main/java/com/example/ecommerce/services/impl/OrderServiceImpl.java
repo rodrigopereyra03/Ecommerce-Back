@@ -19,9 +19,7 @@ import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,11 +47,36 @@ public class OrderServiceImpl implements IOrderServices {
 
         order.setUser(user);
 
+        // Map para almacenar la cantidad comprada de cada producto
+        Map<Long, Integer> purchasedQuantities = new HashMap<>();
+
         // Carga los productos desde la base de datos y configura las cantidades
         List<Product> products = orderDto.getProducts().stream().map(orderProductDto -> {
             Product product = iProductRepository.findById(orderProductDto.getId())
                     .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-            product.setQuantity(orderProductDto.getQuantity());// Asumiendo que Product tiene un campo 'quantity'
+
+            // Verificar que haya suficiente stock
+            if (product.getQuantity() < orderProductDto.getQuantity()) {
+                throw new OrderNotFoundException("Insufficient stock for product: " + product.getName());
+            }
+            // Descontar la cantidad comprada del stock
+            product.setQuantity(product.getQuantity() - orderProductDto.getQuantity());
+
+            // Verifica si el stock llegó a cero y notifica al admin
+            if (product.getQuantity() == 0) {
+                User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
+                        .orElseThrow(() -> new UserNotFoundException("Admin user not found"));
+                try {
+                    iEmailService.sendOutOfStockNotificationToAdmin(admin, product);
+                } catch (MessagingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            // Agrega al mapa la cantidad comprada
+            purchasedQuantities.put(product.getId(), orderProductDto.getQuantity());
+
+            // Asociar el producto con la orden actual
             product.setOrder(order);
             return product;
         }).collect(Collectors.toList());
@@ -72,7 +95,10 @@ public class OrderServiceImpl implements IOrderServices {
 
         // Guarda la orden
         Order savedOrder = iOrderRepository.save(order);
-        iEmailService.sendOrderConfirmationEmail(user, savedOrder);
+        // Actualizar el inventario en la base de datos para cada producto
+        products.forEach(iProductRepository::save);
+
+        iEmailService.sendOrderConfirmationEmail(user, savedOrder, purchasedQuantities);
         // Enviar email de notificación al admin
         User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
                 .orElseThrow(() -> new RuntimeException("Admin user not found"));

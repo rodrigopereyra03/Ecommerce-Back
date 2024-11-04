@@ -30,7 +30,7 @@ public class AuthServiceImpl implements IAuthServices {
         this.emailService = emailService;
     }
 
-    @PostConstruct
+    //@PostConstruct
     public void createAdminAccount(){
         User adminAccount = userSQLRepository.findByRol(UserRol.ADMIN);
         if(adminAccount==null){
