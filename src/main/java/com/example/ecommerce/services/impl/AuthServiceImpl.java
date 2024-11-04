@@ -31,6 +31,7 @@ public class AuthServiceImpl implements IAuthServices {
     }
 
 
+    //@PostConstruct
     public void createAdminAccount(){
         User adminAccount = userSQLRepository.findByRol(UserRol.ADMIN);
         if(adminAccount==null){
