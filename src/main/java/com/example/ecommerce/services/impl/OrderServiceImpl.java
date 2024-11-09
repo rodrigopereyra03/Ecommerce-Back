@@ -51,8 +51,45 @@ public class OrderServiceImpl implements IOrderServices {
         // Map para almacenar la cantidad comprada de cada producto
         Map<Long, Integer> purchasedQuantities = new HashMap<>();
 
+
+        List<Product> updatedProducts = updateStockProduct(orderDto,purchasedQuantities);
+
+        order.setProducts(updatedProducts); // esto esta mal relaciona los productos con los de la base y no con los que compro
+
+        // Calcular el total de la orden
+        double totalAmount = orderDto.getProducts().stream()
+                .mapToDouble(product -> product.getPrice() * product.getQuantity())
+                .sum();
+        order.setAmount(totalAmount);
+
+        // Asigna el estado a CREATED
+        order.setStatus(OrderStatus.CREATED);
+        // Configura la dirección
+        order.setAddress(orderDto.getAddress());
+
+        // Guarda la orden
+        Order savedOrder = iOrderRepository.save(order);
+
+
+        try {
+            iEmailService.sendOrderConfirmationEmail(user, savedOrder, purchasedQuantities);
+        }catch (MessagingException e){
+            System.err.println("Failed to send order confirmation email: " + e.getMessage());
+        }
+        try {
+            // Enviar email de notificación al admin
+            User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Admin user not found"));
+            iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);
+        }catch (MessagingException e){
+            System.err.println("Failed to send new order notification to admin: " + e.getMessage());
+        }
+        return OrderMapper.toOrderDTO(savedOrder);
+    }
+
+    private List<Product> updateStockProduct(OrderDto orderDto, Map<Long, Integer> purchasedQuantities){
         // Carga los productos desde la base de datos y configura las cantidades
-        List<Product> products = orderDto.getProducts().stream().map(orderProductDto -> {
+       List<Product> products=  orderDto.getProducts().stream().map(orderProductDto -> {
             Product product = iProductRepository.findById(orderProductDto.getId())
                     .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
@@ -78,41 +115,13 @@ public class OrderServiceImpl implements IOrderServices {
             purchasedQuantities.put(product.getId(), orderProductDto.getQuantity());
 
             // Asociar el producto con la orden actual
-            product.setOrder(order);
+            //  product.setOrder(order);
             return product;
         }).collect(Collectors.toList());
-        order.setProducts(products);
-
-        // Calcular el total de la orden
-        double totalAmount = products.stream()
-                .mapToDouble(product -> product.getPrice() * product.getQuantity())
-                .sum();
-        order.setAmount(totalAmount);
-
-        // Asigna el estado a CREATED
-        order.setStatus(OrderStatus.CREATED);
-        // Configura la dirección
-        order.setAddress(orderDto.getAddress());
-
-        // Guarda la orden
-        Order savedOrder = iOrderRepository.save(order);
-        // Actualizar el inventario en la base de datos para cada producto
         products.forEach(iProductRepository::save);
 
-        try {
-            iEmailService.sendOrderConfirmationEmail(user, savedOrder, purchasedQuantities);
-        }catch (MessagingException e){
-            System.err.println("Failed to send order confirmation email: " + e.getMessage());
-        }
-        try {
-            // Enviar email de notificación al admin
-            User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
-                    .orElseThrow(() -> new RuntimeException("Admin user not found"));
-            iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);
-        }catch (MessagingException e){
-            System.err.println("Failed to send new order notification to admin: " + e.getMessage());
-        }
-        return OrderMapper.toOrderDTO(savedOrder);
+        return products;
+
     }
 
     @Override
