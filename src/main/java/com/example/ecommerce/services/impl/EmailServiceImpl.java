@@ -49,10 +49,8 @@ public class EmailServiceImpl implements IEmailService {
             }
 
                 mailSender.send(message);
-        } catch (MessagingException e) {
+        } catch (MessagingException | MalformedURLException e) {
             e.printStackTrace();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -69,10 +67,8 @@ public class EmailServiceImpl implements IEmailService {
             UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
             mailSender.send(message);
-        } catch (MessagingException e) {
+        } catch (MessagingException | MalformedURLException e) {
             e.printStackTrace();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -89,11 +85,9 @@ public class EmailServiceImpl implements IEmailService {
             UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
             mailSender.send(message);
-        } catch (MessagingException e) {
+        } catch (MessagingException | MalformedURLException e) {
             e.printStackTrace();
             throw new MessagingException("Failed to send email to admin", e);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -114,10 +108,8 @@ public class EmailServiceImpl implements IEmailService {
             helper.addInline("footer", footerImage);
 
             mailSender.send(message);
-        } catch (MessagingException e) {
+        } catch (MessagingException | MalformedURLException e) {
             e.printStackTrace();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         }
     }
 
