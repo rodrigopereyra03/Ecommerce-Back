@@ -31,7 +31,7 @@ public class AuthServiceImpl implements IAuthServices {
     }
 
 
-    @PostConstruct
+    //@PostConstruct
     public void createAdminAccount(){
         User user = new User();
         user.setFirstName("admin");

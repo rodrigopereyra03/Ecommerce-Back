@@ -8,6 +8,7 @@ import com.example.ecommerce.domain.exceptions.OrderNotFoundException;
 import com.example.ecommerce.domain.exceptions.ProductNotFoundException;
 import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.Order;
+import com.example.ecommerce.domain.models.OrderProduct;
 import com.example.ecommerce.domain.models.Product;
 import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.IOrderRepository;
@@ -52,13 +53,13 @@ public class OrderServiceImpl implements IOrderServices {
         Map<Long, Integer> purchasedQuantities = new HashMap<>();
 
 
-        List<Product> updatedProducts = updateStockProduct(orderDto,purchasedQuantities);
+        List<OrderProduct> orderProducts = updateStockProduct(orderDto, purchasedQuantities, order);
 
-        order.setProducts(updatedProducts); // esto esta mal relaciona los productos con los de la base y no con los que compro
+        order.setOrderProducts(orderProducts);
 
         // Calcular el total de la orden
-        double totalAmount = orderDto.getProducts().stream()
-                .mapToDouble(product -> product.getPrice() * product.getQuantity())
+        double totalAmount = orderProducts.stream()
+                .mapToDouble(op -> op.getPriceAtPurchase() * op.getQuantity())
                 .sum();
         order.setAmount(totalAmount);
 
@@ -69,7 +70,6 @@ public class OrderServiceImpl implements IOrderServices {
 
         // Guarda la orden
         Order savedOrder = iOrderRepository.save(order);
-
 
         try {
             iEmailService.sendOrderConfirmationEmail(user, savedOrder, purchasedQuantities);
@@ -87,41 +87,44 @@ public class OrderServiceImpl implements IOrderServices {
         return OrderMapper.toOrderDTO(savedOrder);
     }
 
-    private List<Product> updateStockProduct(OrderDto orderDto, Map<Long, Integer> purchasedQuantities){
-        // Carga los productos desde la base de datos y configura las cantidades
-       List<Product> products=  orderDto.getProducts().stream().map(orderProductDto -> {
+    private List<OrderProduct> updateStockProduct(OrderDto orderDto, Map<Long, Integer> purchasedQuantities, Order order){
+        return orderDto.getProducts().stream().map(orderProductDto -> {
             Product product = iProductRepository.findById(orderProductDto.getId())
                     .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-            // Verificar que haya suficiente stock
+            // Verificar stock suficiente
             if (product.getQuantity() < orderProductDto.getQuantity()) {
                 throw new OrderNotFoundException("Insufficient stock for product: " + product.getName());
             }
+
             // Descontar la cantidad comprada del stock
             product.setQuantity(product.getQuantity() - orderProductDto.getQuantity());
+            iProductRepository.save(product);
 
-            // Verifica si el stock llegó a cero y notifica al admin
+            // Notificar al admin si el stock está bajo
             if (product.getQuantity() <= 3) {
                 User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
                         .orElseThrow(() -> new UserNotFoundException("Admin user not found"));
                 try {
                     iEmailService.sendOutOfStockNotificationToAdmin(admin, product);
                 } catch (MessagingException e) {
-                    throw new RuntimeException(e);
+                    System.err.println("Failed to send out-of-stock notification email: " + e.getMessage());
                 }
             }
 
-            // Agrega al mapa la cantidad comprada
+            // Agregar la cantidad comprada al mapa
             purchasedQuantities.put(product.getId(), orderProductDto.getQuantity());
 
-            // Asociar el producto con la orden actual
-            //  product.setOrder(order);
-            return product;
+            // Crear una nueva instancia de OrderProduct
+            OrderProduct orderProduct = new OrderProduct();
+            orderProduct.setProduct(product);
+            orderProduct.setQuantity(orderProductDto.getQuantity());
+            orderProduct.setPriceAtPurchase(product.getPrice());
+            // Asocio el OrderProduct con la orden actual
+            orderProduct.setOrder(order);
+
+            return orderProduct;
         }).collect(Collectors.toList());
-        products.forEach(iProductRepository::save);
-
-        return products;
-
     }
 
     @Override
@@ -132,8 +135,8 @@ public class OrderServiceImpl implements IOrderServices {
                     OrderDto orderDto = OrderMapper.toOrderDTO(order);
 
                     // Calculo el total de amount sumando los productos
-                    int totalAmount = order.getProducts().stream()
-                            .mapToInt(product -> product.getQuantity() * product.getPrice().intValue())
+                    int totalAmount = order.getOrderProducts().stream()
+                            .mapToInt(op -> op.getQuantity() * op.getPriceAtPurchase().intValue())
                             .sum();
 
                     orderDto.setAmount(totalAmount);
@@ -149,8 +152,8 @@ public class OrderServiceImpl implements IOrderServices {
         OrderDto orderDto = OrderMapper.toOrderDTO(order);
 
         // Calculo el total de amount sumando los productos
-        int totalAmount = order.getProducts().stream()
-                .mapToInt(product -> product.getQuantity() * product.getPrice().intValue())
+        int totalAmount = order.getOrderProducts().stream()
+                .mapToInt(op -> op.getQuantity() * op.getPriceAtPurchase().intValue())
                 .sum();
 
         orderDto.setAmount(totalAmount);
