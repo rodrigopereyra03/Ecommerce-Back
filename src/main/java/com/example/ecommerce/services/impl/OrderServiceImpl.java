@@ -17,6 +17,7 @@ import com.example.ecommerce.services.IEmailService;
 import com.example.ecommerce.services.IOrderServices;
 import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -63,7 +64,7 @@ public class OrderServiceImpl implements IOrderServices {
             product.setQuantity(product.getQuantity() - orderProductDto.getQuantity());
 
             // Verifica si el stock llegó a cero y notifica al admin
-            if (product.getQuantity() == 0) {
+            if (product.getQuantity() <= 3) {
                 User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
                         .orElseThrow(() -> new UserNotFoundException("Admin user not found"));
                 try {
@@ -98,11 +99,19 @@ public class OrderServiceImpl implements IOrderServices {
         // Actualizar el inventario en la base de datos para cada producto
         products.forEach(iProductRepository::save);
 
-        iEmailService.sendOrderConfirmationEmail(user, savedOrder, purchasedQuantities);
-        // Enviar email de notificación al admin
-        User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
-        iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);
+        try {
+            iEmailService.sendOrderConfirmationEmail(user, savedOrder, purchasedQuantities);
+        }catch (MessagingException e){
+            System.err.println("Failed to send order confirmation email: " + e.getMessage());
+        }
+        try {
+            // Enviar email de notificación al admin
+            User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Admin user not found"));
+            iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);
+        }catch (MessagingException e){
+            System.err.println("Failed to send new order notification to admin: " + e.getMessage());
+        }
         return OrderMapper.toOrderDTO(savedOrder);
     }
 
@@ -191,7 +200,11 @@ public class OrderServiceImpl implements IOrderServices {
         order.setStatus(status);
         Order savedOrder = iOrderRepository.save(order);
 
-        iEmailService.sendOrderStatusUpdateEmail(order.getUser(), order);
+        try {
+            iEmailService.sendOrderStatusUpdateEmail(order.getUser(), order);
+        }catch (MessagingException e){
+            System.err.println("Failed to send order status update email: " + e.getMessage());
+        }
         return OrderMapper.toOrderDTO(savedOrder);
     }
 
@@ -202,6 +215,15 @@ public class OrderServiceImpl implements IOrderServices {
 
         order.setComprobanteUrl(comprobanteUrl);
         Order updatedOrder = iOrderRepository.save(order);
+
+        // Notificar al administrador sobre la actualización del comprobante
+        try {
+            User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
+                    .orElseThrow(() -> new UserNotFoundException("Admin user not found"));
+            iEmailService.sendComprobanteUpdateNotificationToAdmin(admin, updatedOrder);
+        } catch (MessagingException e) {
+            System.err.println("Failed to send comprobante update notification to admin: " + e.getMessage());
+        }
 
         return OrderMapper.toOrderDTO(updatedOrder);
     }
