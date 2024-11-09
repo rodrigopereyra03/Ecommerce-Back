@@ -127,10 +127,11 @@ public class EmailServiceImpl implements IEmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(admin.getEmail());
-            helper.setSubject("Producto fuera de stock: " + product.getName());
+            helper.setSubject("¡Atención! Producto a punto de agotarse: " + product.getName());
 
             // Construye el contenido del correo
             String content = buildOutOfStockEmailContent(admin, product);
+            content += "<p><strong>Advertencia:</strong> El stock de este producto está a punto de agotarse. Por favor, revise el inventario.</p>";
             helper.setText(content, true);
 
             // Agrega una imagen del producto si está disponible
