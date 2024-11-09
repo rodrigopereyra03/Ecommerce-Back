@@ -1,6 +1,7 @@
 package com.example.ecommerce.services.impl;
 
 import com.example.ecommerce.domain.models.Order;
+import com.example.ecommerce.domain.models.OrderProduct;
 import com.example.ecommerce.domain.models.Product;
 import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.services.IEmailService;
@@ -40,7 +41,8 @@ public class EmailServiceImpl implements IEmailService {
             helper.addInline("footer", footerImage);
 
             // Añadir imágenes de productos
-            for (Product product : order.getProducts()) {
+            for (OrderProduct orderProduct : order.getOrderProducts()) {
+                Product product = orderProduct.getProduct();
                 if (product.getImages() != null && !product.getImages().isEmpty()) {
                     String imageUrl = product.getImages().get(0); // Usa la primera imagen de la lista
                     UrlResource productImage = new UrlResource(imageUrl);
@@ -198,7 +200,8 @@ public class EmailServiceImpl implements IEmailService {
         content.append("<p>Tu pedido esta siendo procesado.</p>");
         content.append("<p>Detalles de los productos:</p>");
         content.append("<ul>");
-        for (Product product : order.getProducts()) {
+        for (OrderProduct orderProduct : order.getOrderProducts()) {
+            Product product = orderProduct.getProduct();
             int purchasedQuantity = purchasedQuantities.getOrDefault(product.getId(), 0);
             String imageUrl = product.getImages() != null && !product.getImages().isEmpty() ? product.getImages().get(0) : "default-image-url.jpg";
             content.append("<li><img src='cid:product-").append(product.getId()).append("' alt='").append(product.getName()).append("' style='width:200px;height:auto;'><br>");

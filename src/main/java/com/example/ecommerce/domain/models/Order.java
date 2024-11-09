@@ -23,9 +23,9 @@ public class Order {
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonBackReference
-    private List<Product> products;
+    private List<OrderProduct> orderProducts;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
