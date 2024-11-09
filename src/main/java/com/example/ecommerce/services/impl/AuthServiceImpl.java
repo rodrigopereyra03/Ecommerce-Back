@@ -31,14 +31,14 @@ public class AuthServiceImpl implements IAuthServices {
     }
 
 
-    //@PostConstruct
+    @PostConstruct
     public void createAdminAccount(){
         User adminAccount = userSQLRepository.findByRol(UserRol.ADMIN);
         if(adminAccount==null){
             User user = new User();
             user.setFirstName("admin");
             user.setEmail("casasfriocalor@gmail.com");
-            user.setPassword(new BCryptPasswordEncoder().encode("admin"));
+            user.setPassword(new BCryptPasswordEncoder().encode("Casas.admin!"));
             user.setRol(UserRol.ADMIN);
             userSQLRepository.save(user);
         }

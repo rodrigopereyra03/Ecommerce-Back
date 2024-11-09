@@ -38,12 +38,14 @@ public class ImageServiceImpl implements IImageService {
                             .build()
             );
         }
-        return minioClient.getPresignedObjectUrl(
+       String url =  minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                         .bucket(bucketName)
                         .object(objectName)
                         .method(Method.GET)
-                        .build()
-        );
+                        .build());
+
+        return  url.split("\\?")[0];
+
     }
 }
