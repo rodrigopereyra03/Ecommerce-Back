@@ -127,10 +127,11 @@ public class EmailServiceImpl implements IEmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(admin.getEmail());
-            helper.setSubject("Producto fuera de stock: " + product.getName());
+            helper.setSubject("¡Atención! Producto a punto de agotarse: " + product.getName());
 
             // Construye el contenido del correo
             String content = buildOutOfStockEmailContent(admin, product);
+            content += "<p><strong>Advertencia:</strong> El stock de este producto está a punto de agotarse. Por favor, revise el inventario.</p>";
             helper.setText(content, true);
 
             // Agrega una imagen del producto si está disponible
@@ -143,6 +144,41 @@ public class EmailServiceImpl implements IEmailService {
             mailSender.send(message);
         } catch (MessagingException | MalformedURLException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendComprobanteUpdateNotificationToAdmin(User admin, Order order) throws MessagingException {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(admin.getEmail());
+            helper.setSubject("Actualización de comprobante de orden: " + order.getId());
+
+            // Construye el contenido del correo
+            String content = buildComprobanteUpdateEmailContent(admin, order);
+            helper.setText(content, true);
+
+            // Agrega imágenes de encabezado y pie de página en línea
+            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
+            helper.addInline("header", headerImage);
+
+            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
+            helper.addInline("footer", footerImage);
+
+            // Agrega la imagen del comprobante si está disponible
+            if (order.getComprobanteUrl() != null && !order.getComprobanteUrl().isEmpty()) {
+                try {
+                    UrlResource comprobanteImage = new UrlResource(order.getComprobanteUrl());
+                    helper.addInline("comprobante-image", comprobanteImage);
+                } catch (MalformedURLException e) {
+                    System.err.println("Failed to load comprobante image: " + e.getMessage());
+                }
+            }
+
+            mailSender.send(message);
+        } catch (MessagingException | MalformedURLException e) {
+            System.err.println("Failed to send comprobante update notification to admin: " + e.getMessage());
         }
     }
 
@@ -290,10 +326,11 @@ public class EmailServiceImpl implements IEmailService {
         content.append("<div style='background-color:#f7f7f7;padding:20px;'>");
         content.append("<div style='max-width:600px;margin:auto;background-color:rgba(255,255,255,0.9);border:1px solid #ddd;border-radius:10px;padding:20px;'>");
         content.append("<div style='text-align:center;'>");
-        content.append("<h2 style='color:#e74c3c;'>Producto fuera de stock</h2>");
+        content.append("<h2 style='color:#e67e22;'>Aviso de bajo stock</h2>");
         content.append("</div>");
         content.append("<p>Estimado ").append(admin.getFirstName()).append(",</p>");
-        content.append("<p>El siguiente producto ha alcanzado un stock de <strong>0</strong>:</p>");
+        content.append("<p>El siguiente producto está próximo a agotarse con un stock actual de <strong>")
+                .append(product.getQuantity()).append("</strong> unidades:</p>");
         content.append("<ul>");
         content.append("<li><strong>Nombre:</strong> ").append(product.getName()).append("</li>");
         content.append("<li><strong>Descripción:</strong> ").append(product.getDescription()).append("</li>");
@@ -309,6 +346,52 @@ public class EmailServiceImpl implements IEmailService {
 
         content.append("<p>Por favor, considere actualizar el stock o gestionar la disponibilidad del producto en la tienda.</p>");
         content.append("<p>Saludos,<br>Equipo de Ventas</p>");
+        content.append("</div>");
+        content.append("</div>");
+        content.append("</body></html>");
+
+        return content.toString();
+    }
+
+    private String buildComprobanteUpdateEmailContent(User admin, Order order) {
+        StringBuilder content = new StringBuilder();
+        content.append("<html><head>");
+        content.append("<link href='https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap' rel='stylesheet'>");
+        content.append("<style>");
+        content.append("body { font-family: 'Poppins', sans-serif; font-weight: 600; }");
+        content.append("</style>");
+        content.append("</head><body>");
+        content.append("<div style='background-color:#f7f7f7;padding:20px;'>");
+        content.append("<div style='max-width:600px;margin:auto;background-color:rgba(255,255,255,0.9);border:1px solid #ddd;border-radius:10px;padding:20px;'>");
+
+        // Imagen de encabezado
+        content.append("<div style='text-align:center;'>");
+        content.append("<img src='cid:header' alt='Header' style='width:100%;height:auto;'>");
+        content.append("</div>");
+
+        content.append("<div style='text-align:center;'>");
+        content.append("<h2 style='color:#3498db;'>Actualización de Comprobante de Pago</h2>");
+        content.append("</div>");
+        content.append("<p>Estimado ").append(admin.getFirstName()).append(",</p>");
+        content.append("<p>La orden con ID <strong>").append(order.getId()).append("</strong> ha sido actualizada con un nuevo comprobante de pago.</p>");
+        content.append("<ul>");
+        content.append("<li><strong>Usuario:</strong> ").append(order.getUser().getEmail()).append("</li>");
+        content.append("<li><strong>Fecha de la Orden:</strong> ").append(order.getDateCreated()).append("</li>");
+        content.append("<li><strong>URL del Comprobante:</strong> <a href='").append(order.getComprobanteUrl()).append("'>Ver Comprobante</a></li>");
+        content.append("</ul>");
+
+        // Imagen de comprobante si está disponible
+        content.append("<div style='text-align:center;'>");
+        content.append("<img src='cid:comprobante-image' alt='Comprobante' style='width:200px;height:auto;'>");
+        content.append("</div>");
+
+        content.append("<p>Saludos,<br>Equipo de Ventas</p>");
+
+        // Imagen de pie de página
+        content.append("<div style='text-align:center;margin-top:20px;'>");
+        content.append("<img src='cid:footer' alt='Footer' style='width:100%;height:auto;'>");
+        content.append("</div>");
+
         content.append("</div>");
         content.append("</div>");
         content.append("</body></html>");
