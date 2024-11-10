@@ -25,13 +25,13 @@ public class EmailServiceImpl implements IEmailService {
     private JavaMailSender mailSender;
 
     @Override
-    public void sendOrderConfirmationEmail(User user, Order order,  Map<Long, Integer> purchasedQuantities) {
+    public void sendOrderConfirmationEmail(User user, Order order) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(user.getEmail());
             helper.setSubject("Confirmación de Pedido");
-            helper.setText(buildEmailContent(user, order, purchasedQuantities), true);
+            helper.setText(buildEmailContent(user, order), true);
 
             UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
@@ -57,13 +57,13 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
-    public void sendOrderStatusUpdateEmail(User user, Order order) {
+    public void sendOrderStatusUpdateEmail(Order order) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(user.getEmail());
+            helper.setTo(order.getUser().getEmail());
             helper.setSubject("Actualización de Estado de Orden");
-            helper.setText(buildStatusUpdateEmailContent(user, order), true);
+            helper.setText(buildStatusUpdateEmailContent(order), true);
             UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
             UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
@@ -176,7 +176,7 @@ public class EmailServiceImpl implements IEmailService {
         }
     }
 
-    private String buildEmailContent(User user, Order order,  Map<Long, Integer> purchasedQuantities) {
+    private String buildEmailContent(User user, Order order) {
         StringBuilder content = new StringBuilder();
         content.append("<html><head>");
         content.append("<link href='https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap' rel='stylesheet'>");
@@ -202,10 +202,9 @@ public class EmailServiceImpl implements IEmailService {
         content.append("<ul>");
         for (OrderProduct orderProduct : order.getOrderProducts()) {
             Product product = orderProduct.getProduct();
-            int purchasedQuantity = purchasedQuantities.getOrDefault(product.getId(), 0);
             String imageUrl = product.getImages() != null && !product.getImages().isEmpty() ? product.getImages().get(0) : "default-image-url.jpg";
             content.append("<li><img src='cid:product-").append(product.getId()).append("' alt='").append(product.getName()).append("' style='width:200px;height:auto;'><br>");
-            content.append("<strong>").append(product.getName()).append("</strong>: ").append(product.getDescription()).append(" (Cantidad: ").append(purchasedQuantity).append(")</li>");
+            content.append("<strong>").append(product.getName()).append("</strong>: ").append(product.getDescription()).append(" (Cantidad: ").append(orderProduct.getQuantity()).append(")</li>");
         }
         content.append("</ul>");
         content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
@@ -220,7 +219,7 @@ public class EmailServiceImpl implements IEmailService {
     }
 
 
-    private String buildStatusUpdateEmailContent(User user, Order order) {
+    private String buildStatusUpdateEmailContent(Order order) {
         StringBuilder content = new StringBuilder();
         content.append("<html><head>");
         content.append("<link href='https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap' rel='stylesheet'>");
@@ -234,7 +233,7 @@ public class EmailServiceImpl implements IEmailService {
         content.append("<img src='cid:header' alt='Encabezado' style='width:200px;height:auto;'><br><br>");
         content.append("</div>");
         content.append("<div style='padding:15px;background-color:white;border:1px solid #ddd;border-radius:10px;text-align:center;'>");
-        content.append("<h2 style='color:#333;'>Hola ").append(user.getFirstName()).append(",</h2>");
+        content.append("<h2 style='color:#333;'>Hola ").append(order.getUser().getFirstName()).append(",</h2>");
         content.append("<p>Hemos recibido el pago.").append(" Estamos preparando tu pedido.");
         content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
         content.append("</div>");
