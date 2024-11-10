@@ -218,6 +218,7 @@ public class OrderServiceImpl implements IOrderServices {
                 .orElseThrow(() -> new OrderNotFoundException("Order not found for user: " + userEmail));
 
         order.setComprobanteUrl(comprobanteUrl);
+        order.setStatus(OrderStatus.IN_REVIEW);
         Order updatedOrder = iOrderRepository.save(order);
 
         // Notificar al administrador sobre la actualización del comprobante

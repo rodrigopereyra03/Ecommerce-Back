@@ -32,7 +32,7 @@ public class Order {
     private OrderStatus status;
     private LocalDateTime dateCreated;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private User user;
