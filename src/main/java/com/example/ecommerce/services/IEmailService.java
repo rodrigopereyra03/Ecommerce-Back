@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface IEmailService {
     void sendOrderConfirmationEmail(User user, Order order) throws MessagingException;
-    void sendOrderStatusUpdateEmail(User user, Order order) throws MessagingException;
+    void sendOrderStatusUpdateEmail(Order order) throws MessagingException;
     void sendNewOrderNotificationToAdmin(User admin, Order order) throws MessagingException;
     void sendPasswordResetEmail(User user, String newPassword) throws MessagingException;
     void sendOutOfStockNotificationToAdmin(User admin, Product product) throws MessagingException;
