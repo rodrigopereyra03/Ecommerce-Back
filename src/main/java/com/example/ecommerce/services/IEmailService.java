@@ -9,7 +9,7 @@ import org.aspectj.weaver.ast.Or;
 import java.util.Map;
 
 public interface IEmailService {
-    void sendOrderConfirmationEmail(User user, Order order, Map<Long, Integer> purchasedQuantities) throws MessagingException;
+    void sendOrderConfirmationEmail(User user, Order order) throws MessagingException;
     void sendOrderStatusUpdateEmail(User user, Order order) throws MessagingException;
     void sendNewOrderNotificationToAdmin(User admin, Order order) throws MessagingException;
     void sendPasswordResetEmail(User user, String newPassword) throws MessagingException;

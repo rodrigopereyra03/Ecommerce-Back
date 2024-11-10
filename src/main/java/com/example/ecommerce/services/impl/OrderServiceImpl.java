@@ -54,7 +54,7 @@ public class OrderServiceImpl implements IOrderServices {
         // Map para almacenar la cantidad comprada de cada producto
         Map<Long, Integer> purchasedQuantities = new HashMap<>();
 
-        List<OrderProduct> orderProducts = updateStockProduct(orderDto, purchasedQuantities, order);
+        List<OrderProduct> orderProducts = updateStockProduct(orderDto, order);
 
         order.setOrderProducts(orderProducts);
 
@@ -69,7 +69,7 @@ public class OrderServiceImpl implements IOrderServices {
 
         Order savedOrder = iOrderRepository.save(order);
 
-        emailAsyncService.SendConfirmationMailToClient(user,savedOrder,purchasedQuantities);
+        emailAsyncService.SendConfirmationMailToClient(user,savedOrder);
         emailAsyncService.SendNewOrderCreatedToAdmin(order);
 /*
         try {
@@ -88,7 +88,7 @@ public class OrderServiceImpl implements IOrderServices {
         return OrderMapper.toOrderDTO(savedOrder);
     }
 
-    private List<OrderProduct> updateStockProduct(OrderDto orderDto, Map<Long, Integer> purchasedQuantities, Order order){
+    private List<OrderProduct> updateStockProduct(OrderDto orderDto, Order order){
         return orderDto.getProducts().stream().map(orderProductDto -> {
             Product product = iProductRepository.findById(orderProductDto.getId())
                     .orElseThrow(() -> new ProductNotFoundException("Product not found"));
@@ -109,8 +109,6 @@ public class OrderServiceImpl implements IOrderServices {
                 emailAsyncService.SendLowProductStock(admin,product);
             }
 
-            // Agregar la cantidad comprada al mapa
-            purchasedQuantities.put(product.getId(), orderProductDto.getQuantity());
 
             // Crear una nueva instancia de OrderProduct
             OrderProduct orderProduct = new OrderProduct();
