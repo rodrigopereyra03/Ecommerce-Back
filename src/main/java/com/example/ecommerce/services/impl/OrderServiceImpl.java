@@ -18,9 +18,9 @@ import com.example.ecommerce.services.IEmailService;
 import com.example.ecommerce.services.IOrderServices;
 import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,12 +31,14 @@ public class OrderServiceImpl implements IOrderServices {
     private final IUserRepository iUserRepository;
     private final IProductRepository iProductRepository;
     private final IEmailService iEmailService;
+    private final EmailAsyncService emailAsyncService;
 
-    public OrderServiceImpl(IOrderRepository iOrderRepository, IUserRepository iUserRepository, IProductRepository iProductRepository, IEmailService iEmailService) {
+    public OrderServiceImpl(IOrderRepository iOrderRepository, IUserRepository iUserRepository, IProductRepository iProductRepository, IEmailService iEmailService, EmailAsyncService emailAsyncService) {
         this.iOrderRepository = iOrderRepository;
         this.iUserRepository = iUserRepository;
         this.iProductRepository = iProductRepository;
         this.iEmailService = iEmailService;
+        this.emailAsyncService = emailAsyncService;
     }
 
     @Override
@@ -52,7 +54,6 @@ public class OrderServiceImpl implements IOrderServices {
         // Map para almacenar la cantidad comprada de cada producto
         Map<Long, Integer> purchasedQuantities = new HashMap<>();
 
-
         List<OrderProduct> orderProducts = updateStockProduct(orderDto, purchasedQuantities, order);
 
         order.setOrderProducts(orderProducts);
@@ -61,16 +62,16 @@ public class OrderServiceImpl implements IOrderServices {
         double totalAmount = orderProducts.stream()
                 .mapToDouble(op -> op.getPriceAtPurchase() * op.getQuantity())
                 .sum();
-        order.setAmount(totalAmount);
 
-        // Asigna el estado a CREATED
+        order.setAmount(totalAmount);
         order.setStatus(OrderStatus.CREATED);
-        // Configura la dirección
         order.setAddress(orderDto.getAddress());
 
-        // Guarda la orden
         Order savedOrder = iOrderRepository.save(order);
 
+        emailAsyncService.SendConfirmationMailToClient(user,savedOrder,purchasedQuantities);
+        emailAsyncService.SendNewOrderCreatedToAdmin(order);
+/*
         try {
             iEmailService.sendOrderConfirmationEmail(user, savedOrder, purchasedQuantities);
         }catch (MessagingException e){
@@ -83,7 +84,7 @@ public class OrderServiceImpl implements IOrderServices {
             iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);
         }catch (MessagingException e){
             System.err.println("Failed to send new order notification to admin: " + e.getMessage());
-        }
+        }*/
         return OrderMapper.toOrderDTO(savedOrder);
     }
 
@@ -105,11 +106,7 @@ public class OrderServiceImpl implements IOrderServices {
             if (product.getQuantity() <= 3) {
                 User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
                         .orElseThrow(() -> new UserNotFoundException("Admin user not found"));
-                try {
-                    iEmailService.sendOutOfStockNotificationToAdmin(admin, product);
-                } catch (MessagingException e) {
-                    System.err.println("Failed to send out-of-stock notification email: " + e.getMessage());
-                }
+                emailAsyncService.SendLowProductStock(admin,product);
             }
 
             // Agregar la cantidad comprada al mapa
@@ -212,11 +209,8 @@ public class OrderServiceImpl implements IOrderServices {
         order.setStatus(status);
         Order savedOrder = iOrderRepository.save(order);
 
-        try {
-            iEmailService.sendOrderStatusUpdateEmail(order.getUser(), order);
-        }catch (MessagingException e){
-            System.err.println("Failed to send order status update email: " + e.getMessage());
-        }
+        emailAsyncService.SendOrderUpdatedToClient(order);
+
         return OrderMapper.toOrderDTO(savedOrder);
     }
 
@@ -229,14 +223,14 @@ public class OrderServiceImpl implements IOrderServices {
         Order updatedOrder = iOrderRepository.save(order);
 
         // Notificar al administrador sobre la actualización del comprobante
-        try {
-            User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
-                    .orElseThrow(() -> new UserNotFoundException("Admin user not found"));
-            iEmailService.sendComprobanteUpdateNotificationToAdmin(admin, updatedOrder);
-        } catch (MessagingException e) {
-            System.err.println("Failed to send comprobante update notification to admin: " + e.getMessage());
-        }
+        emailAsyncService.SendNewTransferReceipt(updatedOrder);
 
         return OrderMapper.toOrderDTO(updatedOrder);
+    }
+
+    @Override
+    public List<Order> findAllOrderCreated(LocalDateTime hoursBefore) {
+
+        return iOrderRepository.findAllCreatedInTheLastHours(hoursBefore);
     }
 }

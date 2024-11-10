@@ -8,6 +8,7 @@ import com.example.ecommerce.domain.models.Product;
 import lombok.experimental.UtilityClass;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class OrderMapper {
         orderDTO.setProducts(productDtos);
 
         orderDTO.setStatus(order.getStatus());
-        orderDTO.setDateCreated(LocalDate.now());
+        orderDTO.setDateCreated(order.getDateCreated());
        // orderDTO.setUser(order.getUser());
         orderDTO.setComprobanteUrl(order.getComprobanteUrl());
         return orderDTO;
@@ -57,7 +58,7 @@ public class OrderMapper {
                         })
                 .collect(Collectors.toList()));
         order.setStatus(orderDTO.getStatus());
-        order.setDateCreated(orderDTO.getDateCreated());
+        order.setDateCreated(LocalDateTime.now());
         order.setUser(orderDTO.getUser());
         return order;
     }

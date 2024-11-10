@@ -5,6 +5,7 @@ import com.example.ecommerce.domain.models.Order;
 import com.example.ecommerce.domain.models.User;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,4 +28,6 @@ public interface IOrderRepository {
     List<Order> findByUser(User user);
 
     Optional<Order> findTopByUserEmailOrderByDateCreatedDesc(String userEmail);
+
+    List<Order> findAllCreatedInTheLastHours(LocalDateTime hoursBefore);
 }
