@@ -39,9 +39,9 @@ public class EmailAsyncService {
     }*/
 
     @Async
-    public void SendConfirmationMailToClient(User user, Order order, Map<Long, Integer> purchasedQuantities){
+    public void SendConfirmationMailToClient(User user, Order order){
         try {
-            iEmailService.sendOrderConfirmationEmail(user, order, purchasedQuantities);
+            iEmailService.sendOrderConfirmationEmail(user, order);
         }catch (MessagingException e){
             System.err.println("Failed to send order confirmation email: " + e.getMessage());
         }
@@ -61,7 +61,7 @@ public class EmailAsyncService {
     @Async
     public void SendOrderUpdatedToClient(Order order){
         try {
-            iEmailService.sendOrderStatusUpdateEmail(order.getUser(), order);
+            iEmailService.sendOrderStatusUpdateEmail(order);
         }catch (MessagingException e){
             System.err.println("Failed to send order status update email: " + e.getMessage());
         }
