@@ -8,6 +8,7 @@ import com.example.ecommerce.repositories.IOrderRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +65,11 @@ public class OrderSQLRepository implements IOrderRepository {
     @Override
     public Optional<Order> findTopByUserEmailOrderByDateCreatedDesc(String userEmail) {
         return iOrderSQLRepository.findTopByUserEmailOrderByDateCreatedDesc(userEmail);
+    }
+
+    @Override
+    public List<Order> findAllCreatedInTheLastHours(LocalDateTime hoursBefore) {
+        return iOrderSQLRepository.findAllCreatedInTheLastHours(hoursBefore);
     }
 
 
