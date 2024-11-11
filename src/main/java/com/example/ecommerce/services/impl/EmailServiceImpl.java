@@ -353,19 +353,22 @@ public class EmailServiceImpl implements IEmailService {
         content.append("<link href='https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap' rel='stylesheet'>");
         content.append("<style>");
         content.append("body { font-family: 'Poppins', sans-serif; font-weight: 600; }");
+        content.append("ul { list-style-position: inside; padding-left: 0; text-align: center; }");
+        content.append("li { display: block; text-align: center; margin: 10px 0; }");
+        content.append("li img { display: block; margin: 0 auto; }");
         content.append("</style>");
-        content.append("</head><body>");
+        content.append("</head><body style='font-family:\"Poppins\", sans-serif; font-weight: 600;'>");
         content.append("<div style='background-color:#f7f7f7;padding:20px;'>");
-        content.append("<div style='max-width:600px;margin:auto;background-color:rgba(255,255,255,0.9);border:1px solid #ddd;border-radius:10px;padding:20px;'>");
+        content.append("<div style='max-width:600px;margin:auto;background-color:rgba(255,255,255,0.8);border:1px solid #ddd;border-radius:10px;padding:20px;'>");
 
-        // Imagen de encabezado
-        content.append("<div style='text-align:center;'>");
-        content.append("<img src='cid:header' alt='Header' style='width:100%;height:auto;'>");
-        content.append("</div>");
 
         content.append("<div style='text-align:center;'>");
-        content.append("<h2 style='color:#3498db;'>Actualización de Comprobante de Pago</h2>");
+        content.append("<img src='cid:header' alt='Encabezado' style='width:200px;height:auto;'><br><br>");
         content.append("</div>");
+
+
+        content.append("<div style='padding:15px;background-color:white;border:1px solid #ddd;border-radius:10px;text-align:center;'>");
+        content.append("<h2 style='color:#333;'>Actualización de Comprobante de Pago</h2>");
         content.append("<p>Estimado ").append(admin.getFirstName()).append(",</p>");
         content.append("<p>La orden con ID <strong>").append(order.getId()).append("</strong> ha sido actualizada con un nuevo comprobante de pago.</p>");
         content.append("<ul>");
@@ -374,22 +377,24 @@ public class EmailServiceImpl implements IEmailService {
         content.append("<li><strong>URL del Comprobante:</strong> <a href='").append(order.getComprobanteUrl()).append("'>Ver Comprobante</a></li>");
         content.append("</ul>");
 
-        // Imagen de comprobante si está disponible
-        content.append("<div style='text-align:center;'>");
-        content.append("<img src='cid:comprobante-image' alt='Comprobante' style='width:200px;height:auto;'>");
+
+        if (order.getComprobanteUrl() != null && !order.getComprobanteUrl().isEmpty()) {
+            content.append("<div style='text-align:center;'>");
+            content.append("<img src='cid:comprobante-image' alt='Comprobante' style='width:200px;height:auto;'>");
+            content.append("</div>");
+        }
+
+        content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
         content.append("</div>");
 
-        content.append("<p>Saludos,<br>Equipo de Ventas</p>");
 
-        // Imagen de pie de página
         content.append("<div style='text-align:center;margin-top:20px;'>");
-        content.append("<img src='cid:footer' alt='Footer' style='width:100%;height:auto;'>");
+        content.append("<img src='cid:footer' alt='Pie de Página' style='width:100%;height:auto;max-height:200px;'><br><br>");
         content.append("</div>");
 
         content.append("</div>");
         content.append("</div>");
         content.append("</body></html>");
-
         return content.toString();
     }
 }
