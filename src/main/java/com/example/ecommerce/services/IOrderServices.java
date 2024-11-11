@@ -32,4 +32,6 @@ public interface IOrderServices {
     OrderDto updateComprobanteUrl(String userEmail, String comprobanteUrl);
 
     List<Order> findAllOrderCreated(LocalDateTime hoursBefore);
+
+    OrderDto updateComprobanteUrlById(Long id, String comprobanteUrl);
 }

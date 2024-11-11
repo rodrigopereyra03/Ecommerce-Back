@@ -38,6 +38,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/product/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/orders").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/orders/comprobante-url").authenticated()
+                        .requestMatchers(HttpMethod.PUT,"api/orders/{id}/comprobante-url").authenticated()
                         .requestMatchers("/api/orders/**", "/api/product/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
