@@ -87,4 +87,9 @@ public class OrderController {
         return ResponseEntity.ok(updatedOrder);
     }
 
+    @PutMapping(value = "/orders/{id}/comprobante-url")
+    public ResponseEntity<OrderDto> updateComprobanteUrlById(@PathVariable Long id, @RequestParam String comprobanteUrl){
+        OrderDto updatedOrder = orderService.updateComprobanteUrlById(id,comprobanteUrl);
+        return ResponseEntity.ok(updatedOrder);
+    }
 }

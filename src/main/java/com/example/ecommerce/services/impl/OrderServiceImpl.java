@@ -232,4 +232,17 @@ public class OrderServiceImpl implements IOrderServices {
 
         return iOrderRepository.findAllCreatedInTheLastHours(hoursBefore);
     }
+
+    @Override
+    public OrderDto updateComprobanteUrlById(Long id, String comprobanteUrl) {
+        Optional<Order> optionalOrder = iOrderRepository.findById(id);
+        if (optionalOrder.isEmpty()) {
+            throw new OrderNotFoundException("Order not found with id: " + id);
+        }
+        Order order = optionalOrder.get();
+        order.setComprobanteUrl(comprobanteUrl);
+        Order updatedOrder = iOrderRepository.save(order);
+        emailAsyncService.SendNewTransferReceipt(updatedOrder);
+        return OrderMapper.toOrderDTO(updatedOrder);
+    }
 }
