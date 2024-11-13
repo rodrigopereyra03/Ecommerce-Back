@@ -73,7 +73,7 @@ public class OrderController {
         return ResponseEntity.ok(userOrders);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+   // @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping(value = "/orders/{id}/status")
     public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus status) throws MessagingException {
         OrderDto updatedOrder = orderService.updateOrderStatus(id, status);
