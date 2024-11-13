@@ -39,6 +39,6 @@ public class Order {
 
     private String comprobanteUrl;
 
-    private Boolean withDelivery;
+    private Boolean pickup;
 
 }
