@@ -234,7 +234,7 @@ public class EmailServiceImpl implements IEmailService {
         content.append("</div>");
         content.append("<div style='padding:15px;background-color:white;border:1px solid #ddd;border-radius:10px;text-align:center;'>");
         content.append("<h2 style='color:#333;'>Hola ").append(order.getUser().getFirstName()).append(",</h2>");
-        content.append("<p>Hemos recibido el pago.").append(" Estamos preparando tu pedido.");
+        content.append("<p>Estamos procesando su pago.");
         content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
         content.append("</div>");
         content.append("<div style='text-align:center;margin-top:20px;'>");
