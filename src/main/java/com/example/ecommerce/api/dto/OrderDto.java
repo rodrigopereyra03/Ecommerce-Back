@@ -23,4 +23,5 @@ public class OrderDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private User user;
     private String comprobanteUrl;
+    private Boolean withDelivery;
 }
