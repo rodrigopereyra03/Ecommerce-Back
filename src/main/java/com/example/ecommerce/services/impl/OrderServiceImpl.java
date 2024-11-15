@@ -229,7 +229,6 @@ public class OrderServiceImpl implements IOrderServices {
 
     @Override
     public List<Order> findAllOrderCreated(LocalDateTime hoursBefore) {
-
         return iOrderRepository.findAllCreatedInTheLastHours(hoursBefore);
     }
 
@@ -241,6 +240,7 @@ public class OrderServiceImpl implements IOrderServices {
         }
         Order order = optionalOrder.get();
         order.setComprobanteUrl(comprobanteUrl);
+        order.setStatus(OrderStatus.IN_REVIEW);
         Order updatedOrder = iOrderRepository.save(order);
         emailAsyncService.SendNewTransferReceipt(updatedOrder);
         return OrderMapper.toOrderDTO(updatedOrder);
