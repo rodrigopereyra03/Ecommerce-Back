@@ -8,6 +8,7 @@ import com.example.ecommerce.domain.exceptions.OrderNotFoundException;
 import com.example.ecommerce.domain.exceptions.ProductNotFoundException;
 import com.example.ecommerce.domain.exceptions.UserNotFoundException;
 import com.example.ecommerce.domain.models.Order;
+import com.example.ecommerce.domain.models.OrderProduct;
 import com.example.ecommerce.domain.models.Product;
 import com.example.ecommerce.domain.models.User;
 import com.example.ecommerce.repositories.IOrderRepository;
@@ -19,9 +20,8 @@ import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,12 +31,14 @@ public class OrderServiceImpl implements IOrderServices {
     private final IUserRepository iUserRepository;
     private final IProductRepository iProductRepository;
     private final IEmailService iEmailService;
+    private final EmailAsyncService emailAsyncService;
 
-    public OrderServiceImpl(IOrderRepository iOrderRepository, IUserRepository iUserRepository, IProductRepository iProductRepository, IEmailService iEmailService) {
+    public OrderServiceImpl(IOrderRepository iOrderRepository, IUserRepository iUserRepository, IProductRepository iProductRepository, IEmailService iEmailService, EmailAsyncService emailAsyncService) {
         this.iOrderRepository = iOrderRepository;
         this.iUserRepository = iUserRepository;
         this.iProductRepository = iProductRepository;
         this.iEmailService = iEmailService;
+        this.emailAsyncService = emailAsyncService;
     }
 
     @Override
@@ -49,34 +51,75 @@ public class OrderServiceImpl implements IOrderServices {
 
         order.setUser(user);
 
-        // Carga los productos desde la base de datos y configura las cantidades
-        List<Product> products = orderDto.getProducts().stream().map(orderProductDto -> {
-            Product product = iProductRepository.findById(orderProductDto.getId())
-                    .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-            product.setQuantity(orderProductDto.getQuantity()); // Asumiendo que Product tiene un campo 'quantity'
-            return product;
-        }).collect(Collectors.toList());
-        order.setProducts(products);
+        // Map para almacenar la cantidad comprada de cada producto
+        Map<Long, Integer> purchasedQuantities = new HashMap<>();
+
+        List<OrderProduct> orderProducts = updateStockProduct(orderDto, order);
+
+        order.setOrderProducts(orderProducts);
 
         // Calcular el total de la orden
-        double totalAmount = products.stream()
-                .mapToDouble(product -> product.getPrice() * product.getQuantity())
+        double totalAmount = orderProducts.stream()
+                .mapToDouble(op -> op.getPriceAtPurchase() * op.getQuantity())
                 .sum();
-        order.setAmount(totalAmount);
 
-        // Asigna el estado a CREATED
+        order.setAmount(totalAmount);
         order.setStatus(OrderStatus.CREATED);
-        // Configura la dirección
         order.setAddress(orderDto.getAddress());
 
-        // Guarda la orden
         Order savedOrder = iOrderRepository.save(order);
-       /* iEmailService.sendOrderConfirmationEmail(user, savedOrder);
-        // Enviar email de notificación al admin
-        User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
-        iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);*/
+
+        emailAsyncService.SendConfirmationMailToClient(user,savedOrder);
+        emailAsyncService.SendNewOrderCreatedToAdmin(order);
+/*
+        try {
+            iEmailService.sendOrderConfirmationEmail(user, savedOrder, purchasedQuantities);
+        }catch (MessagingException e){
+            System.err.println("Failed to send order confirmation email: " + e.getMessage());
+        }
+        try {
+            // Enviar email de notificación al admin
+            User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Admin user not found"));
+            iEmailService.sendNewOrderNotificationToAdmin(admin, savedOrder);
+        }catch (MessagingException e){
+            System.err.println("Failed to send new order notification to admin: " + e.getMessage());
+        }*/
         return OrderMapper.toOrderDTO(savedOrder);
+    }
+
+    private List<OrderProduct> updateStockProduct(OrderDto orderDto, Order order){
+        return orderDto.getProducts().stream().map(orderProductDto -> {
+            Product product = iProductRepository.findById(orderProductDto.getId())
+                    .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+
+            // Verificar stock suficiente
+            if (product.getQuantity() < orderProductDto.getQuantity()) {
+                throw new OrderNotFoundException("Insufficient stock for product: " + product.getName());
+            }
+
+            // Descontar la cantidad comprada del stock
+            product.setQuantity(product.getQuantity() - orderProductDto.getQuantity());
+            iProductRepository.save(product);
+
+            // Notificar al admin si el stock está bajo
+            if (product.getQuantity() <= 3) {
+                User admin = iUserRepository.findFirstByRole(UserRol.ADMIN)
+                        .orElseThrow(() -> new UserNotFoundException("Admin user not found"));
+                emailAsyncService.SendLowProductStock(admin,product);
+            }
+
+
+            // Crear una nueva instancia de OrderProduct
+            OrderProduct orderProduct = new OrderProduct();
+            orderProduct.setProduct(product);
+            orderProduct.setQuantity(orderProductDto.getQuantity());
+            orderProduct.setPriceAtPurchase(product.getPrice());
+            // Asocio el OrderProduct con la orden actual
+            orderProduct.setOrder(order);
+
+            return orderProduct;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -87,8 +130,8 @@ public class OrderServiceImpl implements IOrderServices {
                     OrderDto orderDto = OrderMapper.toOrderDTO(order);
 
                     // Calculo el total de amount sumando los productos
-                    int totalAmount = order.getProducts().stream()
-                            .mapToInt(product -> product.getQuantity() * product.getPrice().intValue())
+                    int totalAmount = order.getOrderProducts().stream()
+                            .mapToInt(op -> op.getQuantity() * op.getPriceAtPurchase().intValue())
                             .sum();
 
                     orderDto.setAmount(totalAmount);
@@ -104,8 +147,8 @@ public class OrderServiceImpl implements IOrderServices {
         OrderDto orderDto = OrderMapper.toOrderDTO(order);
 
         // Calculo el total de amount sumando los productos
-        int totalAmount = order.getProducts().stream()
-                .mapToInt(product -> product.getQuantity() * product.getPrice().intValue())
+        int totalAmount = order.getOrderProducts().stream()
+                .mapToInt(op -> op.getQuantity() * op.getPriceAtPurchase().intValue())
                 .sum();
 
         orderDto.setAmount(totalAmount);
@@ -164,7 +207,42 @@ public class OrderServiceImpl implements IOrderServices {
         order.setStatus(status);
         Order savedOrder = iOrderRepository.save(order);
 
-        iEmailService.sendOrderStatusUpdateEmail(order.getUser(), order);
+        emailAsyncService.SendOrderUpdatedToClient(order);
+
         return OrderMapper.toOrderDTO(savedOrder);
+    }
+
+    @Override
+    public OrderDto updateComprobanteUrl(String userEmail, String comprobanteUrl) {
+        Order order = iOrderRepository.findTopByUserEmailOrderByDateCreatedDesc(userEmail)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found for user: " + userEmail));
+
+        order.setComprobanteUrl(comprobanteUrl);
+        order.setStatus(OrderStatus.IN_REVIEW);
+        Order updatedOrder = iOrderRepository.save(order);
+
+        // Notificar al administrador sobre la actualización del comprobante
+        emailAsyncService.SendNewTransferReceipt(updatedOrder);
+
+        return OrderMapper.toOrderDTO(updatedOrder);
+    }
+
+    @Override
+    public List<Order> findAllOrderCreated(LocalDateTime hoursBefore) {
+        return iOrderRepository.findAllCreatedInTheLastHours(hoursBefore);
+    }
+
+    @Override
+    public OrderDto updateComprobanteUrlById(Long id, String comprobanteUrl) {
+        Optional<Order> optionalOrder = iOrderRepository.findById(id);
+        if (optionalOrder.isEmpty()) {
+            throw new OrderNotFoundException("Order not found with id: " + id);
+        }
+        Order order = optionalOrder.get();
+        order.setComprobanteUrl(comprobanteUrl);
+        order.setStatus(OrderStatus.IN_REVIEW);
+        Order updatedOrder = iOrderRepository.save(order);
+        emailAsyncService.SendNewTransferReceipt(updatedOrder);
+        return OrderMapper.toOrderDTO(updatedOrder);
     }
 }

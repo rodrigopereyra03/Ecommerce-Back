@@ -73,10 +73,23 @@ public class OrderController {
         return ResponseEntity.ok(userOrders);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+   // @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping(value = "/orders/{id}/status")
     public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus status) throws MessagingException {
         OrderDto updatedOrder = orderService.updateOrderStatus(id, status);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
+    @PutMapping(value = "/orders/comprobante-url")
+    public ResponseEntity<OrderDto> updateComprobanteUrl(@RequestParam String comprobanteUrl, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        OrderDto updatedOrder = orderService.updateComprobanteUrl(userDetails.getUsername(),comprobanteUrl);
+        return ResponseEntity.ok(updatedOrder);
+    }
+
+    @PutMapping(value = "/orders/{id}/comprobante-url")
+    public ResponseEntity<OrderDto> updateComprobanteUrlById(@PathVariable Long id, @RequestParam String comprobanteUrl){
+        OrderDto updatedOrder = orderService.updateComprobanteUrlById(id,comprobanteUrl);
         return ResponseEntity.ok(updatedOrder);
     }
 }

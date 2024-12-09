@@ -24,23 +24,24 @@ public class AuthServiceImpl implements IAuthServices {
 
     private final IUserSQLRepository userSQLRepository;
     private final IEmailService emailService;
+    private final EmailAsyncService emailAsyncService;
 
-    public AuthServiceImpl(IUserSQLRepository userSQLRepository, IEmailService emailService) {
+    public AuthServiceImpl(IUserSQLRepository userSQLRepository, IEmailService emailService, EmailAsyncService emailAsyncService) {
         this.userSQLRepository = userSQLRepository;
         this.emailService = emailService;
+        this.emailAsyncService = emailAsyncService;
     }
+
 
     @PostConstruct
     public void createAdminAccount(){
-        User adminAccount = userSQLRepository.findByRol(UserRol.ADMIN);
-        if(adminAccount==null){
-            User user = new User();
-            user.setFirstName("admin");
-            user.setEmail("admin@test.com");
-            user.setPassword(new BCryptPasswordEncoder().encode("admin"));
-            user.setRol(UserRol.ADMIN);
-            userSQLRepository.save(user);
-        }
+        User user = new User();
+        user.setFirstName("admin");
+        user.setEmail("casasfriocalor@gmail.com");
+        user.setPassword(new BCryptPasswordEncoder().encode("Casas.admin!"));
+        user.setRol(UserRol.ADMIN);
+        userSQLRepository.save(user);
+
     }
 
     @Override
@@ -88,13 +89,7 @@ public class AuthServiceImpl implements IAuthServices {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         user.setPassword(passwordEncoder.encode(newPassword)); // Cifrado
         userSQLRepository.save(user); // Guarda el usuario actualizado
-
-        // Envío del correo electrónico con la nueva contraseña
-        try {
-            emailService.sendPasswordResetEmail(user, newPassword);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Error sending email: " + e.getMessage(), e);
-        }
+        emailAsyncService.SendNewPassword(user,newPassword);
     }
 
     private String generateRandomPassword() {

@@ -124,6 +124,16 @@ public class UserServiceImpl implements IUserServices {
         repository.save(user); // Guarda el usuario actualizado
     }
 
+    @Override
+    public UserDto getUserByUserEmail(String email) {
+        Optional<User> userOptional = repository.findFirstByEmail(email);
+        if (userOptional.isPresent()) {
+            return UserMapper.userToDto(userOptional.get());
+        } else {
+            throw new UserNotFoundException("User not found");
+        }
+    }
+
     private boolean isValidPassword(String password) {
         return password.length() >= 6 && password.matches(".*[A-Z].*");
     }
