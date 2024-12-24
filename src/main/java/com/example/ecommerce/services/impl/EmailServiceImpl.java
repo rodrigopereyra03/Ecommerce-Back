@@ -207,6 +207,8 @@ public class EmailServiceImpl implements IEmailService {
             content.append("<strong>").append(product.getName()).append("</strong>: ").append(product.getDescription()).append(" (Cantidad: ").append(orderProduct.getQuantity()).append(")</li>");
         }
         content.append("</ul>");
+        // Agregando el mensaje de WhatsApp
+        content.append("<p style='margin-top:20px;'><strong>Envianos un whatsapp al numero +54 9 11 6517-0107, para coordinar la entrega de tu compra</strong></p>");
         content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
         content.append("</div>");
         content.append("<div style='text-align:center;margin-top:20px;'>");
@@ -235,6 +237,7 @@ public class EmailServiceImpl implements IEmailService {
         content.append("<div style='padding:15px;background-color:white;border:1px solid #ddd;border-radius:10px;text-align:center;'>");
         content.append("<h2 style='color:#333;'>Hola ").append(order.getUser().getFirstName()).append(",</h2>");
         content.append("<p>Estamos procesando su pago.");
+        content.append("<p style='margin-top:20px;'><strong>Envianos un whatsapp al numero +54 9 11 6517-0107, para coordinar la entrega de tu compra</strong></p>");
         content.append("<p>Saludos cordiales,<br>Casas Frio - Calor</p>");
         content.append("</div>");
         content.append("<div style='text-align:center;margin-top:20px;'>");
