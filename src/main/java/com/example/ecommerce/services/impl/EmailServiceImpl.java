@@ -33,11 +33,11 @@ public class EmailServiceImpl implements IEmailService {
             helper.setSubject("Confirmación de Pedido");
             helper.setText(buildEmailContent(user, order), true);
 
-            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
+            UrlResource headerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
 
             // Añadir la imagen del pie de página
-            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
+            UrlResource footerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
 
             // Añadir imágenes de productos
@@ -64,9 +64,9 @@ public class EmailServiceImpl implements IEmailService {
             helper.setTo(order.getUser().getEmail());
             helper.setSubject("Actualización de Estado de Orden");
             helper.setText(buildStatusUpdateEmailContent(order), true);
-            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
+            UrlResource headerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
-            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
+            UrlResource footerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
             mailSender.send(message);
         } catch (MessagingException | MalformedURLException e) {
@@ -82,9 +82,9 @@ public class EmailServiceImpl implements IEmailService {
             helper.setTo(admin.getEmail());
             helper.setSubject("Nueva Orden Recibida");
             helper.setText(buildNewOrderEmailContent(admin, order), true);
-            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
+            UrlResource headerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
-            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
+            UrlResource footerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
             mailSender.send(message);
         } catch (MessagingException | MalformedURLException e) {
@@ -103,10 +103,10 @@ public class EmailServiceImpl implements IEmailService {
             helper.setText(buildPasswordResetEmailContent(user, newPassword), true);
 
             // Añadir imágenes en línea, si es necesario
-            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
+            UrlResource headerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
 
-            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
+            UrlResource footerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
 
             mailSender.send(message);
@@ -154,10 +154,10 @@ public class EmailServiceImpl implements IEmailService {
             helper.setText(content, true);
 
             // Agrega imágenes de encabezado y pie de página en línea
-            UrlResource headerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/CASAS.png");
+            UrlResource headerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/CASAS.png");
             helper.addInline("header", headerImage);
 
-            UrlResource footerImage = new UrlResource("http://vps-4482586-x.dattaweb.com:9000/webapp/FOOTER.png");
+            UrlResource footerImage = new UrlResource("http://vps-4931911-x.dattaweb.com:9000/webapp/FOOTER.png");
             helper.addInline("footer", footerImage);
 
             // Agrega la imagen del comprobante si está disponible

@@ -43,9 +43,9 @@ class MPServiceImpl implements IMPServices {
        // String callbackUrl = "http://localhost:3000/order/" + order.getId();
        // String callbackUrl = "http://vps-4482586-x.dattaweb.com/orders";
         PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                .success("http://vps-4482586-x.dattaweb.com/orders")
-                .failure("http://vps-4482586-x.dattaweb.com/cart")
-                .pending("http://vps-4482586-x.dattaweb.com/cart")
+                .success("https://casasfriocalor.com.ar/orders")
+                .failure("https://casasfriocalor.com.ar/cart")
+                .pending("https://casasfriocalor.com.ar/cart")
                 .build();
 
         // Crear un objeto de tipo PreferenceRequest con los items
